@@ -31,23 +31,18 @@ const PostDetail = () => {
     fetchPost();
   }, [postId]);
 
-  // 터치 시작 이벤트
   const handleTouchStart = (e) => {
     setTouchStart(e.targetTouches[0].clientX);
   };
 
-  // 터치 종료 이벤트 (스와이프 감지)
   const handleTouchEnd = (e) => {
     setTouchEnd(e.changedTouches[0].clientX);
-    const SWIPE_THRESHOLD = 50; // 최소 슬라이드 거리
+    const SWIPE_THRESHOLD = 50;
 
-    // 왼쪽으로 스와이프 → 다음 이미지
     if (touchStart - touchEnd > SWIPE_THRESHOLD) {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }
-    // 오른쪽으로 스와이프 → 이전 이미지
-    else if (touchEnd - touchStart > SWIPE_THRESHOLD) {
-      setCurrentImageIndex((prev) => 
+    } else if (touchEnd - touchStart > SWIPE_THRESHOLD) {
+      setCurrentImageIndex((prev) =>
         prev === 0 ? images.length - 1 : prev - 1
       );
     }
@@ -65,11 +60,10 @@ const PostDetail = () => {
   return (
     <div className="post-detail-container">
       <TopBar />
-      <div 
+      <div
         className="slider-container"
-        onTouchStart={handleTouchStart} // 터치 시작
-        onTouchEnd={handleTouchEnd} // 터치 종료
-      >
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}>
         <img
           src={images[currentImageIndex]}
           alt={`Slide ${currentImageIndex + 1}`}
@@ -80,18 +74,18 @@ const PostDetail = () => {
             <span
               key={index}
               className={`dot ${currentImageIndex === index ? "active" : ""}`}
-              onClick={() => handleDotClick(index)}
-            ></span>
+              onClick={() => handleDotClick(index)}></span>
           ))}
         </div>
       </div>
-        <div className="comment-container">
-          <h1>{post.title}</h1>
-          <div className="description">
+      <div className="comment-container">
+        <h1>{post.title}</h1>
+        <div className="category-tag">{post.category}</div>
+        <div className="description">
           <p>{post.comment}</p>
-          </div>
-          <h3>가격: {post.price}</h3>
-          <p>게시일: {post.time}</p>
+        </div>
+        {/* <h3>가격: {post.price}</h3> */}
+        <p>게시일: {post.time}</p>
       </div>
       <BottomBar postId={postId} price={post.price} />
     </div>
