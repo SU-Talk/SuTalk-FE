@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+}
+
+.home-Container {
+  position: relative;
+  padding: 30px 0 50px;
+}
+
+.home-Posts {
+  margin-top: 20px;
+}
+
+.home-PostCard {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-PostCard img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.home-PostDetails {
+  flex: 1;
+}
+
+.home-Write {
+  position: fixed;
+  bottom: 60px;
+  right: 5px;
+  font-size: 1.5rem;
+  color: #2670ff;
+  background-color: #fff;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

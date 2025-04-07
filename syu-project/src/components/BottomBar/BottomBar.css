@@ -1,0 +1,48 @@
+/* 하단바 스타일 */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #ffffff;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  /* 왼쪽 영역 (하트와 가격) */
+  .bottom-bar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .heart-icon {
+    font-size: 24px;
+    color: #2670ff; /* 파란색 테두리 */
+    cursor: pointer;
+  }
+  
+  .heart-icon.favorite {
+    color: #2670ff; /* 파란색으로 채운 하트 */
+  }
+  
+  .price {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 10px; /* 하트와 가격 간격 */
+  }
+  
+  /* 채팅하기 버튼 */
+  .chat-button {
+    background-color: #2670ff; /* 당근마켓 오렌지 색상 */
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+  }
+  
