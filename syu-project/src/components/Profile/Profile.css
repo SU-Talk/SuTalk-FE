@@ -1,0 +1,91 @@
+/* 프로필 페이지 전체 컨테이너 */
+.profile-container {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* 헤더 스타일 */
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2670ff;
+}
+
+/* 프로필 정보 섹션 */
+.profile-info {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.avatar-icon {
+  font-size: 40px;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.edit-profile-button {
+  background-color: #e0f7ff;
+  color: #2670ff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.edit-profile-button:hover {
+  background-color: #d0efff;
+}
+
+.profile-menu {
+  border-top: 1px solid #ddd;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: space-between; /* 양쪽 끝으로 정렬 */
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center; /* 아이콘과 텍스트를 세로로 중앙 정렬 */
+  gap: 10px; /* 아이콘과 텍스트 간격 */
+  text-decoration: none; /* 링크 밑줄 제거 */
+  color: inherit; /* 텍스트 색상 상속 */
+}
+
+.sales-span {
+  margin-left: 5px;
+}
+
+.menu-icon {
+  font-size: 18px;
+}
+
+.menu-arrow {
+  font-size: 18px;
+}

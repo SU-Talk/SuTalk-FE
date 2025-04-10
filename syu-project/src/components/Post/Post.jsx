@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Post.css";
 
 const Post = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
@@ -38,10 +40,16 @@ const Post = () => {
     // 서버로 데이터 전송 로직 추가
   };
 
+  const handleGoBack = () => {
+    navigate(-1); // 이전 페이지로 이동
+  };
+
   return (
     <div className="post-container">
       <header className="post-header">
-        <button className="close-button">×</button>
+        <button className="close-button" onClick={handleGoBack}>
+          ×
+        </button>
         <h3>글쓰기</h3>
         <button className="save-button">임시 저장</button>
       </header>
