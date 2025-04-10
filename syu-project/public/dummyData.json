@@ -5,11 +5,9 @@
       "title": "판매 게시글 제목 1",
       "time": "2025-01-01",
       "price": "10,500원",
-      "comment": "살 사람 난 원해 유asdfasdfasdfsdajkvhzxcjkvhxcjkvbhsadkhjbvadskhjbvcsadkjvbncxzmn,vcmxzbvxzckjm,vbxcz",
-      "images": [
-        "/assets/aa.png",
-        "/assets/default-image.png"
-      ]
+      "comment": "살 사람 난 원해 유...",
+      "category": "전자제품",
+      "images": ["/assets/aa.png", "/assets/default-image.png"]
     },
     {
       "id": 2,
@@ -17,10 +15,8 @@
       "time": "2024-01-02",
       "price": "20,000원",
       "comment": "거의 새 상품입니다. 연락 주세요.",
-      "images": [
-        "/assets/dd.png",
-        "/assets/ee.png"
-      ]
+      "category": "가구",
+      "images": ["/assets/dd.png", "/assets/ee.png"]
     },
     {
       "id": 3,
@@ -28,9 +24,8 @@
       "time": "2024-01-03",
       "price": "30,000원",
       "comment": "쿨거래 시 에눌 가능합니다.",
-      "images": [
-        "/assets/ff.png"
-      ]
+      "category": "전자제품",
+      "images": ["/assets/ff.png"]
     },
     {
       "id": 4,
@@ -38,20 +33,17 @@
       "time": "2024-01-04",
       "price": "40,000원",
       "comment": "상태 좋습니다.",
-      "images": [
-        "/assets/gg.png",
-        "/assets/hh.png"
-      ]
+      "category": "생활용품",
+      "images": ["/assets/gg.png", "/assets/hh.png"]
     },
     {
       "id": 5,
-      "title": "판매 게시글 제목 5",
+      "title": "노트북 팝니다.",
       "time": "2024-01-05",
       "price": "50,000원",
       "comment": "직거래 선호합니다.",
-      "images": [
-        "/assets/ii.png"
-      ]
+      "category": "가구",
+      "images": ["/assets/ii.png"]
     },
     {
       "id": 6,
@@ -59,9 +51,8 @@
       "time": "2024-01-05",
       "price": "50,000원",
       "comment": "직거래 선호합니다.",
-      "images": [
-        "/assets/jj.png"
-      ]
+      "category": "전자제품",
+      "images": ["/assets/jj.png"]
     }
   ],
   "hasNextPage": false

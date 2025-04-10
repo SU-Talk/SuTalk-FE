@@ -11,8 +11,10 @@ import "./App.css";
 
 import LoadingPage from "./components/Loading/Loading.jsx";
 import HomePage from "./components/Home/Home.jsx";
-import SearchPage from "./components/Serach/Search.jsx"
-import PostDetailPage from "./components/PostDetail/PostDetail.jsx"
+import SearchPage from "./components/Serach/Search.jsx";
+import PostPage from "./components/Post/Post.jsx";
+import PostDetailPage from "./components/PostDetail/PostDetail.jsx";
+
 const LoadingWrapper = () => {
   const navigate = useNavigate();
 
@@ -44,6 +46,7 @@ const AnimatedRoutes = () => {
             <Route path="/" element={<LoadingWrapper />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/post" element={<PostPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
           </Routes>
         </div>

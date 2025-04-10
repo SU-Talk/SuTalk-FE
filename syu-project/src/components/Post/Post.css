@@ -1,0 +1,92 @@
+.post-container {
+  width: 100%;
+  max-width: 600px;
+  height: 100vh;
+  margin: auto;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #2670ff;
+}
+
+.post-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.post-container .post-header h3 {
+  justify-content: center;
+  color: #2670ff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #2670ff;
+  width: 33%;
+}
+
+.save-button {
+  background: none;
+  border: none;
+  color: #2670ff;
+  width: 33%;
+}
+
+.image-upload {
+  margin: 10px;
+}
+
+.image-label {
+  display: inline-block;
+  padding: 10px 5%;
+  border: 1px dashed #2670ff;
+  border-radius: 8px;
+}
+
+.post-form input,
+.post-form textarea,
+.post-form button {
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+.post-form input,
+.post-form textarea {
+  padding: 10px;
+  border: 1px solid #2670ff;
+}
+
+.category-select select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #2670ff;
+  border-radius: 8px;
+  background-color: white;
+  appearance: none; /* 기본 드롭다운 화살표 제거 */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.category-select {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+textarea {
+  height: 80px;
+}
+
+.submit-button {
+  height: 50px;
+  background: none;
+  border: 1px solid #2670ff;
+}
+
+.submit-button:hover {
+  background-color: #2670ff;
+  color: white;
+}
