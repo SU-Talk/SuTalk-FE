@@ -15,8 +15,12 @@ import SearchPage from "./components/Serach/Search.jsx";
 import ProfilePage from "./components/Profile/Profile.jsx";
 import ProfileEditPage from "./components/Profile/ProfileEdit.jsx";
 import FavoritesPage from "./components/Favorites/Favorites.jsx";
+import SalesHistoryPage from "./components/SalesHistory/SalesHistory.jsx";
 import PostPage from "./components/Post/Post.jsx";
 import PostDetailPage from "./components/PostDetail/PostDetail.jsx";
+import PostEditPage from "./components/Post/PostEdit.jsx";
+import Reviewpage from "./components/Review/Review.jsx";
+import ReportPage from "./components/Report/Report.jsx";
 
 // LoadingWrapper 컴포넌트 다시 정의
 const LoadingWrapper = () => {
@@ -65,8 +69,15 @@ const AnimatedRoutes = () => {
               }
             />
             <Route path="/profile/favorites" element={<FavoritesPage />} />
+            <Route
+              path="/profile/sales-history"
+              element={<SalesHistoryPage />}
+            />
+            <Route path="/review" element={<Reviewpage />} />
+            <Route path="/report" element={<ReportPage />} />
             <Route path="/post" element={<PostPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
+            <Route path="/post/:postId/edit" element={<PostEditPage />} />
           </Routes>
         </div>
       </CSSTransition>

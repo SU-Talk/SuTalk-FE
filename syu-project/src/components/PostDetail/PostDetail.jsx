@@ -84,7 +84,7 @@ const PostDetail = () => {
         <div className="description">
           <p>{post.comment}</p>
         </div>
-        {/* <h3>가격: {post.price}</h3> */}
+        <p>장소: {post.location}</p>
         <p>게시일: {post.time}</p>
       </div>
       <BottomBar postId={postId} price={post.price} />

@@ -19,7 +19,7 @@ const ProfileEdit = ({ nickname, setNickname }) => {
   return (
     <div className="profile-edit-container">
       <header className="profile-edit-header">
-        <button className="close-button" onClick={handleClose}>
+        <button className="profile-close-button" onClick={handleClose}>
           <FontAwesomeIcon icon={faTimes} />
         </button>
         <h2>프로필 수정</h2>
@@ -34,7 +34,6 @@ const ProfileEdit = ({ nickname, setNickname }) => {
             <FontAwesomeIcon icon={faCamera} />
           </span>
         </div>
-        {/* 닉네임 입력 필드 */}
         <input
           type="text"
           placeholder="닉네임을 입력하세요."

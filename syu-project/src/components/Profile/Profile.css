@@ -1,9 +1,9 @@
 /* 프로필 페이지 전체 컨테이너 */
 .profile-container {
   width: 100%;
-  max-width: 400px;
+  height: 100%;
   margin: auto;
-  padding: 20px;
+  padding: 30px 0 50px;
   font-family: Arial, sans-serif;
 }
 

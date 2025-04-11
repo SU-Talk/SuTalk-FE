@@ -29,7 +29,7 @@ const Profile = ({ nickname }) => {
           <span className="menu-arrow">〉</span>
         </div>
         <div className="menu-item">
-          <Link to="/sales-history" className="menu-link">
+          <Link to="/profile/sales-history" className="menu-link">
             <FontAwesomeIcon icon={faReceipt} className="menu-icon" />
             <span className="sales-span">판매내역</span>
           </Link>

@@ -10,11 +10,21 @@
 /* 헤더 스타일 */
 .profile-edit-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
-.close-button,
+.profile-close-button {
+  position: absolute;
+  left: 10px;
+}
+
+.save-button {
+  position: absolute;
+  right: -20px;
+}
+
+.profile-close-button,
 .save-button {
   background: none;
   border: none;
