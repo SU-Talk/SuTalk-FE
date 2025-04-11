@@ -31,29 +31,31 @@ const Home = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/dummyData.json?page=${page}`);
+        const response = await fetch(`http://13.55.195.181/api/items?page=${page}`);
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
-
-        if (!data || !data.posts) {
-          console.error("Invalid data format:", data);
+        console.log("응답 데이터:", data);
+  
+        if (!Array.isArray(data)) {
+          console.error("응답이 배열이 아님:", data);
           return;
         }
-
+  
         setPosts((prevPosts) => {
-          const newPosts = data.posts.filter(
-            (post) => !prevPosts.find((p) => p.id === post.id)
+          const newPosts = data.filter(
+            (post) => !prevPosts.find((p) => p.itemid === post.itemid)
           );
           return [...prevPosts, ...newPosts];
         });
       } catch (error) {
-        console.error("Error fetching dummy data:", error);
+        console.error("Error fetching post data:", error);
       }
       setLoading(false);
     };
-
+  
     fetchPosts();
   }, [page]);
+  
 
   // 필터링 로직 (카테고리 + 검색어)
   useEffect(() => {
@@ -104,22 +106,23 @@ const Home = () => {
       </div>
 
       <div className="home-Posts">
-        {filteredPosts.map((post) => (
-          <Link to={`/post/${post.id}`} key={post.id} className="home-PostCard">
-            <img
-              src={post.thumbnail || "/assets/default-image.png"}
-              alt={post.title}
-            />
-            <div className="home-PostDetails">
-              <h3>{highlightText(post.title)}</h3>
-              <div className="post-metadata">
-                <p>{post.time}</p>
-                <p>{post.price}</p>
-              </div>
-              <p className="post-comment">{highlightText(post.comment)}</p>
+      {filteredPosts.map((post) => (
+        <Link to={`/post/${post.itemid}`} key={post.itemid} className="home-PostCard">
+          <img
+            src={post.thumbnail || "/assets/default-image.png"}
+            alt={post.title}
+          />
+          <div className="home-PostDetails">
+            <h3>{highlightText(post.title)}</h3>
+            <div className="post-metadata">
+              <p>{post.time}</p>
+              <p>{post.price.toLocaleString()}원</p>
             </div>
-          </Link>
-        ))}
+            <p className="post-comment">{highlightText(post.comment)}</p>
+          </div>
+        </Link>
+      ))}
+
         {loading && <p className="loading-text">Loading...</p>}
         {!loading && filteredPosts.length === 0 && (
           <p className="no-results">검색 결과가 없습니다</p>
