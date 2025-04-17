@@ -1,49 +1,48 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Post.css";
 
-const Post = () => {
+const PostEdit = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { postData: initialData } = location.state || {};
 
-  // 상태 초기화 (게시글 작성 전용)
   const [formData, setFormData] = useState({
-    title: "",
-    category: "",
-    price: "",
-    description: "",
-    location: "",
-    images: [],
+    title: initialData?.title || "",
+    category: initialData?.category || "",
+    price: initialData?.price || "",
+    description: initialData?.comment || "",
+    location: initialData?.location || "",
+    images: initialData?.images || [],
   });
 
-  // 이미지 업로드 핸들러 (Object URL 생성)
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 5) {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
-    const newImages = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
+      images: [
+        ...prev.images,
+        ...files.map((file) => URL.createObjectURL(file)),
+      ],
     }));
   };
 
-  // 이미지 삭제 핸들러
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
     setFormData((prev) => ({ ...prev, images: newImages }));
   };
 
-  // 폼 제출 핸들러
   const handleSubmit = () => {
     if (!formData.title || !formData.category || !formData.price) {
-      alert("필수 항목을 모두 입력해주세요.");
+      alert("제목, 카테고리, 가격은 필수 입력 항목입니다.");
       return;
     }
-    alert("게시글이 작성되었습니다!");
-    console.log("새로운 게시글 데이터:", formData); // 실제로는 API 호출
-    navigate(-1); // 이전 페이지로 이동
+    alert("게시글이 수정되었습니다!");
+    navigate(`/post/${initialData.id}`); // 상세 페이지로 이동
   };
 
   return (
@@ -52,10 +51,9 @@ const Post = () => {
         <button className="close-button" onClick={() => navigate(-1)}>
           &lt;
         </button>
-        <h3>글쓰기</h3>
+        <h3>게시글 수정</h3>
       </header>
 
-      {/* 이미지 업로드 섹션 */}
       <div className="image-upload">
         <div className="image-preview">
           {formData.images.map((img, index) => (
@@ -82,7 +80,6 @@ const Post = () => {
         />
       </div>
 
-      {/* 게시글 작성 폼 */}
       <form className="post-form">
         <input
           type="text"
@@ -143,11 +140,11 @@ const Post = () => {
         />
 
         <button type="button" className="submit-button" onClick={handleSubmit}>
-          작성 완료
+          수정 완료
         </button>
       </form>
     </div>
   );
 };
 
-export default Post;
+export default PostEdit;

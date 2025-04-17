@@ -92,7 +92,16 @@ const Home = () => {
       <TopBar />
       <div className="category-Container">
         <CategoryFilter
-          categories={["전체", "전자제품", "가구", "생활용품"]}
+          categories={[
+            "전체",
+            "전자제품",
+            "가구",
+            "의류",
+            "도서",
+            "생활용품",
+            "스포츠/레저",
+            "기타",
+          ]}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
         />
@@ -123,7 +132,7 @@ const Home = () => {
       </div>
 
       <div className="home-Write">
-        <Link to="/write">
+        <Link to="/post">
           <FontAwesomeIcon icon={faPen} />
         </Link>
       </div>
