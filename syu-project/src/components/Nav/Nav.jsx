@@ -13,17 +13,19 @@ const Nav = () => {
         <li className="nav-item">
           <Link
             to="/home"
-            className={`nav-link ${location.pathname === "/home" ? "active" : ""}`}
-          >
+            className={`nav-link ${
+              location.pathname === "/home" ? "active" : ""
+            }`}>
             <FontAwesomeIcon icon={faHome} />
             <span>홈</span>
           </Link>
         </li>
         <li className="nav-item">
           <Link
-            to="/messages"
-            className={`nav-link ${location.pathname === "/messages" ? "active" : ""}`}
-          >
+            to="/chatlist"
+            className={`nav-link ${
+              location.pathname === "/chatlist" ? "active" : ""
+            }`}>
             <FontAwesomeIcon icon={faEnvelope} />
             <span>메시지</span>
           </Link>
@@ -31,8 +33,9 @@ const Nav = () => {
         <li className="nav-item">
           <Link
             to="/profile"
-            className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
-          >
+            className={`nav-link ${
+              location.pathname === "/profile" ? "active" : ""
+            }`}>
             <FontAwesomeIcon icon={faUser} />
             <span>프로필</span>
           </Link>
