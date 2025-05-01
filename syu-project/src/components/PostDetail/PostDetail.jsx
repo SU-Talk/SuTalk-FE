@@ -15,13 +15,10 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`/dummyData.json`);
+        const response = await fetch(`http://localhost:8080/api/items/${postId}`);
         if (!response.ok) throw new Error("Failed to fetch post data");
         const data = await response.json();
-        const selectedPost = data.posts.find(
-          (p) => p.id === postId || p.id === parseInt(postId)
-        );
-        setPost(selectedPost);
+        setPost(data);
       } catch (error) {
         console.error("Error fetching post data:", error);
       } finally {
@@ -30,6 +27,7 @@ const PostDetail = () => {
     };
     fetchPost();
   }, [postId]);
+  
 
   const handleTouchStart = (e) => {
     setTouchStart(e.targetTouches[0].clientX);
@@ -82,9 +80,9 @@ const PostDetail = () => {
         <h1>{post.title}</h1>
         <div className="category-tag">{post.category}</div>
         <div className="description">
-          <p>{post.comment}</p>
+          <p>{post.description}</p>
         </div>
-        <p>장소: {post.location}</p>
+        <p>장소: {post.meetLocation}</p>
         <p>게시일: {post.time}</p>
       </div>
       <BottomBar postId={postId} price={post.price} />

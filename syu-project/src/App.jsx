@@ -82,7 +82,7 @@ const AnimatedRoutes = () => {
             />
             <Route path="/review" element={<Reviewpage />} />
             <Route path="/report" element={<ReportPage />} />
-            <Route path="/post" element={<PostPage />} />
+            <Route path="/post" element={<PostEditPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
             <Route path="/post/:postId/edit" element={<PostEditPage />} />
           </Routes>

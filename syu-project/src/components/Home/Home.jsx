@@ -17,7 +17,7 @@ const Home = () => {
   const searchQuery = searchParams.get("q")?.toLowerCase() || "";
 
   const highlightText = (text) => {
-    if (!searchQuery) return text;
+    if (!searchQuery || !text) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
     return text
       .split(regex)
@@ -30,13 +30,12 @@ const Home = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://13.55.195.181:8080/api/items`);
+        const response = await fetch("http://localhost:8080/api/items"); // ✅ 로컬 백엔드 주소
         if (!response.ok) throw new Error("Network response was not ok");
 
         const data = await response.json();
         console.log("✅ 응답 데이터:", data);
 
-        // 기존 posts랑 합치기 (중복 제거)
         setPosts((prevPosts) => {
           const newPosts = data.filter(
             (post) => !prevPosts.find((p) => p.itemid === post.itemid)
@@ -55,17 +54,14 @@ const Home = () => {
   useEffect(() => {
     let result = posts;
 
-    // 카테고리 필터링
     if (selectedCategory !== "전체") {
       result = result.filter((post) => post.category === selectedCategory);
     }
 
-    // 검색어 필터링
     if (searchQuery) {
-      result = result.filter(
-        (post) =>
-          post.title.toLowerCase().includes(searchQuery) ||
-          post.comment.toLowerCase().includes(searchQuery)
+      result = result.filter((post) =>
+        (post.title?.toLowerCase() || "").includes(searchQuery) ||
+        (post.comment?.toLowerCase() || "").includes(searchQuery)
       );
     }
 
@@ -112,15 +108,21 @@ const Home = () => {
           <Link to={`/post/${post.itemid}`} key={post.itemid} className="home-PostCard">
             <img
               src={post.thumbnail || "/assets/default-image.png"}
-              alt={post.title}
+              alt={post.title || "게시물"}
             />
             <div className="home-PostDetails">
-              <h3>{highlightText(post.title)}</h3>
+              <h3>{highlightText(post.title || "제목 없음")}</h3>
               <div className="post-metadata">
-                <p>{post.time}</p>
-                <p>{post.price.toLocaleString()}원</p>
+                <p>{post.time || "시간 없음"}</p>
+                <p>
+                  {typeof post.price === "number"
+                    ? post.price.toLocaleString() + "원"
+                    : "가격 없음"}
+                </p>
               </div>
-              <p className="post-comment">{highlightText(post.comment)}</p>
+              <p className="post-comment">
+                {highlightText(post.comment || "설명 없음")}
+              </p>
             </div>
           </Link>
         ))}

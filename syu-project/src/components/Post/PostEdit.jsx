@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import "./Post.css";
 
 const PostEdit = () => {
@@ -11,7 +12,7 @@ const PostEdit = () => {
     title: initialData?.title || "",
     category: initialData?.category || "",
     price: initialData?.price || "",
-    description: initialData?.comment || "",
+    description: initialData?.description || "",
     location: initialData?.location || "",
     images: initialData?.images || [],
   });
@@ -22,12 +23,11 @@ const PostEdit = () => {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
+
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [
-        ...prev.images,
-        ...files.map((file) => URL.createObjectURL(file)),
-      ],
+      images: [...prev.images, ...imageUrls],
     }));
   };
 
@@ -36,14 +36,42 @@ const PostEdit = () => {
     setFormData((prev) => ({ ...prev, images: newImages }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.title || !formData.category || !formData.price) {
-      alert("제목, 카테고리, 가격은 필수 입력 항목입니다.");
-      return;
+  const handleSubmit = async () => {
+    alert("✅ 작성 완료 버튼 클릭됨!"); // 👈 이거 먼저
+    console.log("🧪 handleSubmit 실행됨!");
+  
+    try {
+      const payload = {
+        title: formData.title,
+        category: formData.category,
+        price: Number(formData.price),
+        description: formData.description,
+        meetLocation: formData.location,
+        sellerId: "test-user-001", // ✅ 여기 이름을 바꾸자!
+        itemImages: formData.images,
+      };
+      
+      
+    
+      console.log("🧪 전송할 데이터:", payload);
+    
+      const response = await axios.post("/api/items", payload);
+
+  
+      console.log("✅ 등록 응답:", response.data);  // << 여기가 핵심!
+      alert("게시글이 작성되었습니다!");
+      navigate(`/post/${response.data.itemid}`);  // 혹시 여기가 undefined면 문제 발생 가능성 있음
+    } catch (error) {
+      console.error("❌ 등록 중 에러 발생:", error);
+      console.log("🔍 error.response:", error.response); // 👈 추가
+      console.log("🔍 error.request:", error.request);   // 👈 추가
+      console.log("🔍 error.message:", error.message);   // 👈 추가
+      alert("에러가 발생했어요. 콘솔 확인 부탁!");
     }
-    alert("게시글이 수정되었습니다!");
-    navigate(`/post/${initialData.id}`); // 상세 페이지로 이동
+    
+    
   };
+  
 
   return (
     <div className="post-container">
@@ -51,7 +79,7 @@ const PostEdit = () => {
         <button className="close-button" onClick={() => navigate(-1)}>
           &lt;
         </button>
-        <h3>게시글 수정</h3>
+        <h3>글쓰기</h3>
       </header>
 
       <div className="image-upload">
@@ -61,7 +89,8 @@ const PostEdit = () => {
               <img src={img} alt={`미리보기 ${index + 1}`} />
               <button
                 className="delete-image-button"
-                onClick={() => handleDeleteImage(index)}>
+                onClick={() => handleDeleteImage(index)}
+              >
                 ×
               </button>
             </div>
@@ -95,7 +124,8 @@ const PostEdit = () => {
           value={formData.category}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, category: e.target.value }))
-          }>
+          }
+        >
           <option value="" disabled>
             카테고리 선택
           </option>
@@ -128,7 +158,8 @@ const PostEdit = () => {
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
-          }></textarea>
+          }
+        ></textarea>
 
         <input
           type="text"
@@ -140,7 +171,7 @@ const PostEdit = () => {
         />
 
         <button type="button" className="submit-button" onClick={handleSubmit}>
-          수정 완료
+          작성 완료
         </button>
       </form>
     </div>
