@@ -11,6 +11,9 @@ import "./App.css";
 
 import LoadingPage from "./components/Loading/Loading.jsx";
 import HomePage from "./components/Home/Home.jsx";
+import ChatPage from "./components/Chat/ChatRoom.jsx";
+import socket from "./Socket.js";
+import ChatListPage from "./components/Chat/ChatList.jsx";
 import SearchPage from "./components/Serach/Search.jsx";
 import ProfilePage from "./components/Profile/Profile.jsx";
 import ProfileEditPage from "./components/Profile/ProfileEdit.jsx";
@@ -22,7 +25,6 @@ import PostEditPage from "./components/Post/PostEdit.jsx";
 import Reviewpage from "./components/Review/Review.jsx";
 import ReportPage from "./components/Report/Report.jsx";
 
-// LoadingWrapper 컴포넌트 다시 정의
 const LoadingWrapper = () => {
   const navigate = useNavigate();
 
@@ -54,6 +56,11 @@ const AnimatedRoutes = () => {
           <Routes location={location}>
             <Route path="/" element={<LoadingWrapper />} />
             <Route path="/home" element={<HomePage />} />
+            <Route
+              path="/chat/:PostId"
+              element={<ChatPage socket={socket} />}
+            />
+            <Route path="/chatlist" element={<ChatListPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route
               path="/profile"
