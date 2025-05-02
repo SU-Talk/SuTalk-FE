@@ -6,16 +6,21 @@ import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 
 const ChatRoom = () => {
-  const { postId } = useParams(); // chatRoomId
+  const { postId: chatRoomId } = useParams(); // postId → chatRoomId
   const [messages, setMessages] = useState([]);
   const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
     // 🔁 1. 과거 채팅 불러오기
     axios
-      .get(`/api/chat-messages/${postId}`)
+      .get(`/api/chat-messages/${chatRoomId}`)
       .then((res) => {
-        setMessages(res.data);
+        const formattedMessages = res.data.map((msg) => ({
+          ...msg,
+          time: new Date(msg.sentAt).toLocaleTimeString(), // 시간 포맷팅
+          isSent: msg.senderId === localStorage.getItem("senderId"), // 내가 보낸 메시지 여부
+        }));
+        setMessages(formattedMessages);
       })
       .catch((err) => {
         console.error("❌ 메시지 불러오기 실패:", err);
@@ -28,12 +33,16 @@ const ChatRoom = () => {
       onConnect: () => {
         console.log("✅ WebSocket 연결 성공");
 
-        client.subscribe(`/topic/chat/${postId}`, (message) => {
+        client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const data = JSON.parse(message.body);
-          setMessages((prev) => [...prev, data]);
+          const formatted = {
+            ...data,
+            time: new Date(data.sentAt).toLocaleTimeString(),
+            isSent: data.senderId === localStorage.getItem("senderId"),
+          };
+          setMessages((prev) => [...prev, formatted]);
         });
 
-        // ✅ 연결된 이후에만 stompClient 저장
         setStompClient(client);
       },
       onStompError: (frame) => {
@@ -47,17 +56,17 @@ const ChatRoom = () => {
       client.deactivate();
       console.log("❎ WebSocket 연결 해제");
     };
-  }, [postId]);
+  }, [chatRoomId]);
 
   return (
     <div className="chat-room">
       <header className="chat-header">
-        <h2>💬 채팅방 {postId}</h2>
+        <h2>💬 채팅방 {chatRoomId}</h2>
       </header>
       <ChatBody messages={messages} />
       <ChatFooter
         stompClient={stompClient}
-        postId={postId}
+        postId={chatRoomId}
         setMessages={setMessages}
       />
     </div>
