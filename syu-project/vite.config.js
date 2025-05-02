@@ -1,12 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    global: {},
+  },
   server: {
     proxy: {
-      '/api': 'http://localhost:8080', // 👉 백엔드 주소
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      // '/ws': { 사용 X → 직접 연결로 대체 }
     },
   },
 })

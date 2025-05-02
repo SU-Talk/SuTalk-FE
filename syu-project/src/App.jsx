@@ -9,10 +9,10 @@ import {
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import "./App.css";
 
+// 페이지 컴포넌트 import
 import LoadingPage from "./components/Loading/Loading.jsx";
 import HomePage from "./components/Home/Home.jsx";
-import ChatPage from "./components/Chat/ChatRoom.jsx";
-import socket from "./Socket.js";
+import ChatRoom from "./components/Chat/ChatRoom.jsx";
 import ChatListPage from "./components/Chat/ChatList.jsx";
 import SearchPage from "./components/Serach/Search.jsx";
 import ProfilePage from "./components/Profile/Profile.jsx";
@@ -25,6 +25,7 @@ import PostEditPage from "./components/Post/PostEdit.jsx";
 import Reviewpage from "./components/Review/Review.jsx";
 import ReportPage from "./components/Report/Report.jsx";
 
+// 로딩 후 자동 이동 처리
 const LoadingWrapper = () => {
   const navigate = useNavigate();
 
@@ -39,10 +40,11 @@ const LoadingWrapper = () => {
   return <LoadingPage />;
 };
 
+// 페이지 전환 애니메이션
 const AnimatedRoutes = () => {
   const location = useLocation();
   const nodeRef = useRef(null);
-  const [nickname, setNickname] = useState("상혁"); // 여기서 상태 관리
+  const [nickname, setNickname] = useState("상혁");
 
   return (
     <TransitionGroup component={null}>
@@ -51,35 +53,21 @@ const AnimatedRoutes = () => {
         nodeRef={nodeRef}
         classNames="fade"
         timeout={0}
-        unmountOnExit>
+        unmountOnExit
+      >
         <div ref={nodeRef}>
           <Routes location={location}>
             <Route path="/" element={<LoadingWrapper />} />
             <Route path="/home" element={<HomePage />} />
-            <Route
-              path="/chat/:PostId"
-              element={<ChatPage socket={socket} />}
-            />
+            <Route path="/chatroom/:postId" element={<ChatRoom />} />
             <Route path="/chatlist" element={<ChatListPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route
-              path="/profile"
-              element={<ProfilePage nickname={nickname} />}
-            />
-            <Route
-              path="/profile/edit"
-              element={
-                <ProfileEditPage
-                  nickname={nickname}
-                  setNickname={setNickname}
-                />
-              }
-            />
+            <Route path="/profile" element={<ProfilePage nickname={nickname} />} />
+            <Route path="/profile/edit" element={
+              <ProfileEditPage nickname={nickname} setNickname={setNickname} />
+            } />
             <Route path="/profile/favorites" element={<FavoritesPage />} />
-            <Route
-              path="/profile/sales-history"
-              element={<SalesHistoryPage />}
-            />
+            <Route path="/profile/sales-history" element={<SalesHistoryPage />} />
             <Route path="/review" element={<Reviewpage />} />
             <Route path="/report" element={<ReportPage />} />
             <Route path="/post" element={<PostEditPage />} />
@@ -92,7 +80,7 @@ const AnimatedRoutes = () => {
   );
 };
 
-// App 컴포넌트를 ErrorBoundary로 감싸기
+// 에러 바운더리
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -118,7 +106,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-
+// 루트 컴포넌트
 function App() {
   return (
     <Router>

@@ -1,34 +1,56 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Client } from "@stomp/stompjs";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 
-const ChatRoom = ({ socket }) => {
-  const { postId } = useParams(); // 채팅방 ID
-  const [messages, setMessages] = useState([]); // 메시지 상태
+const ChatRoom = () => {
+  const { postId } = useParams();
+  const [messages, setMessages] = useState([]);
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
-    if (!socket) return;
+    const client = new Client({
+      brokerURL: "ws://localhost:8080/ws", // ✨ SockJS 제거 버전
+      reconnectDelay: 5000, // 재연결 옵션 (선택)
+      onConnect: () => {
+        console.log("✅ WebSocket 연결 성공");
 
-    const handleMessage = (data) => {
-      console.log("[클라이언트] 메시지 수신:", data); // 수신 로그
-      setMessages((prev) => [...prev, data]); // 서버에서 수신한 메시지 추가
-    };
+        client.subscribe(`/topic/chat/${postId}`, (message) => {
+          const data = JSON.parse(message.body);
+          setMessages((prev) => [...prev, data]);
+        });
 
-    socket.on("message", handleMessage);
+        setStompClient(client);
+      },
+      onStompError: (frame) => {
+        console.error("❌ STOMP 에러:", frame);
+      },
+    });
+
+    client.activate();
 
     return () => {
-      socket.off("message", handleMessage);
+      client.deactivate();
+      console.log("❎ WebSocket 연결 해제");
     };
-  }, [socket]);
+  }, [postId]);
+
+  if (!stompClient) {
+    return <p>🔌 채팅 서버 연결 중입니다... 잠시만 기다려주세요</p>;
+  }
 
   return (
     <div className="chat-room">
       <header className="chat-header">
-        <h2>채팅방 {postId}</h2>
+        <h2>💬 채팅방 {postId}</h2>
       </header>
-      <ChatBody messages={messages} /> {/* 메시지 리스트 */}
-      <ChatFooter socket={socket} setMessages={setMessages} /> {/* 입력창 */}
+      <ChatBody messages={messages} />
+      <ChatFooter
+        stompClient={stompClient}
+        postId={postId}
+        setMessages={setMessages}
+      />
     </div>
   );
 };

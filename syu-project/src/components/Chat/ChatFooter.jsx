@@ -1,22 +1,38 @@
 import React, { useState } from "react";
 
-const ChatFooter = ({ socket, setMessages }) => {
+const ChatFooter = ({ stompClient, postId, setMessages }) => {
   const [message, setMessage] = useState("");
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (message.trim()) {
+
+    const senderId = localStorage.getItem("senderId") || "unknown";
+
+    if (message.trim() && stompClient && stompClient.connected) {
       const newMessage = {
-        text: message,
-        time: new Date().toLocaleTimeString(),
-        isSent: true,
+        chatRoomId: Number(postId),
+        senderId: senderId,
+        comment: message,
       };
 
-      console.log("[클라이언트] 메시지 전송:", newMessage); // 송신 로그
-      socket.emit("message", newMessage); // 서버로 메시지 전송
+      console.log("[🚀 메시지 전송]:", newMessage);
 
-      setMessages((prev) => [...prev, newMessage]); // 상태 업데이트
-      setMessage(""); // 입력창 초기화
+      // ✅ publish 방식으로 전송!
+      stompClient.publish({
+        destination: "/app/chat.send", // @MessageMapping("/chat.send")와 일치해야 함
+        body: JSON.stringify(newMessage),
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...newMessage,
+          isSent: true,
+          time: new Date().toLocaleTimeString(),
+        },
+      ]);
+
+      setMessage("");
     }
   };
 

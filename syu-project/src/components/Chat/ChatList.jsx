@@ -16,7 +16,7 @@ const ChatList = () => {
       </header>
       <div className="chat-items">
         {chats.map((chat) => (
-          <Link to={`/chat/${chat.id}`} key={chat.id} className="chat-item">
+          <Link to={`/chatroom/${chat.id}`} key={chat.id} className="chat-item">
             <div className="chat-info">
               <h3>{chat.user}</h3>
               <p>{chat.lastMessage}</p>
