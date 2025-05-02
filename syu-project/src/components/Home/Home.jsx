@@ -30,7 +30,7 @@ const Home = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8080/api/items"); // ✅ 로컬 백엔드 주소
+        const response = await fetch("http://localhost:8080/api/items");
         if (!response.ok) throw new Error("Network response was not ok");
 
         const data = await response.json();
@@ -104,28 +104,32 @@ const Home = () => {
       </div>
 
       <div className="home-Posts">
-        {filteredPosts.map((post) => (
-          <Link to={`/post/${post.itemid}`} key={post.itemid} className="home-PostCard">
-            <img
-              src={post.thumbnail || "/assets/default-image.png"}
-              alt={post.title || "게시물"}
-            />
-            <div className="home-PostDetails">
-              <h3>{highlightText(post.title || "제목 없음")}</h3>
-              <div className="post-metadata">
-                <p>{post.time || "시간 없음"}</p>
-                <p>
-                  {typeof post.price === "number"
-                    ? post.price.toLocaleString() + "원"
-                    : "가격 없음"}
+        {filteredPosts.map((post) => {
+          const thumbnail =
+            post.itemImages && post.itemImages.length > 0
+              ? `http://localhost:8080${post.itemImages[0]}`
+              : "/assets/default-image.png";
+
+          return (
+            <Link to={`/post/${post.itemid}`} key={post.itemid} className="home-PostCard">
+              <img src={thumbnail} alt={post.title || "게시물"} />
+              <div className="home-PostDetails">
+                <h3>{highlightText(post.title || "제목 없음")}</h3>
+                <div className="post-metadata">
+                  <p>{post.time || "시간 없음"}</p>
+                  <p>
+                    {typeof post.price === "number"
+                      ? post.price.toLocaleString() + "원"
+                      : "가격 없음"}
+                  </p>
+                </div>
+                <p className="post-comment">
+                  {highlightText(post.comment || "설명 없음")}
                 </p>
               </div>
-              <p className="post-comment">
-                {highlightText(post.comment || "설명 없음")}
-              </p>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
 
         {loading && <p className="loading-text">불러오는 중...</p>}
         {!loading && filteredPosts.length === 0 && (

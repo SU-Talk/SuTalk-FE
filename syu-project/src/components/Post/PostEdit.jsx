@@ -14,7 +14,8 @@ const PostEdit = () => {
     price: initialData?.price || "",
     description: initialData?.description || "",
     location: initialData?.location || "",
-    images: initialData?.images || [],
+    images: [], // 이미지 미리보기용 URL 저장
+    imageFiles: [], // 실제 전송용 File 객체 저장
   });
 
   const handleImageUpload = (e) => {
@@ -24,54 +25,59 @@ const PostEdit = () => {
       return;
     }
 
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...imageUrls],
+      images: [...prev.images, ...previewUrls],
+      imageFiles: [...prev.imageFiles, ...files],
     }));
   };
 
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, images: newImages }));
+    const newImageFiles = formData.imageFiles.filter((_, i) => i !== index);
+    setFormData((prev) => ({
+      ...prev,
+      images: newImages,
+      imageFiles: newImageFiles,
+    }));
   };
 
   const handleSubmit = async () => {
-    alert("✅ 작성 완료 버튼 클릭됨!"); // 👈 이거 먼저
+    alert("✅ 작성 완료 버튼 클릭됨!");
     console.log("🧪 handleSubmit 실행됨!");
-  
+
     try {
-      const payload = {
+      const itemData = {
         title: formData.title,
         category: formData.category,
         price: Number(formData.price),
         description: formData.description,
         meetLocation: formData.location,
-        sellerId: "test-user-001", // ✅ 여기 이름을 바꾸자!
-        itemImages: formData.images,
+        sellerId: "test-user-001",
+        itemImages: [],
       };
-      
-      
-    
-      console.log("🧪 전송할 데이터:", payload);
-    
-      const response = await axios.post("/api/items", payload);
 
-  
-      console.log("✅ 등록 응답:", response.data);  // << 여기가 핵심!
+      const requestForm = new FormData();
+      requestForm.append(
+        "item",
+        new Blob([JSON.stringify(itemData)], { type: "application/json" })
+      );
+      formData.imageFiles.forEach((file) => requestForm.append("images", file));
+
+      const response = await axios.post("http://localhost:8080/api/items", requestForm, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("✅ 등록 응답:", response.data);
       alert("게시글이 작성되었습니다!");
-      navigate(`/post/${response.data.itemid}`);  // 혹시 여기가 undefined면 문제 발생 가능성 있음
+      navigate(`/post/${response.data.itemid}`);
     } catch (error) {
       console.error("❌ 등록 중 에러 발생:", error);
-      console.log("🔍 error.response:", error.response); // 👈 추가
-      console.log("🔍 error.request:", error.request);   // 👈 추가
-      console.log("🔍 error.message:", error.message);   // 👈 추가
+      console.log("🔍 error.response:", error.response);
       alert("에러가 발생했어요. 콘솔 확인 부탁!");
     }
-    
-    
   };
-  
 
   return (
     <div className="post-container">

@@ -49,7 +49,9 @@ const PostDetail = () => {
   if (loading) return <p>Loading...</p>;
   if (!post) return <p>Post not found</p>;
 
-  const images = post.images || [post.thumbnail || "/assets/default-image.png"];
+  const images =
+  post.itemImages?.map((path) => `http://localhost:8080${path}`) ||
+  [post.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png"];
 
   const handleDotClick = (index) => {
     setCurrentImageIndex(index);
