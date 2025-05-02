@@ -1,25 +1,30 @@
 import React, { useEffect, useRef } from "react";
 
 const ChatBody = ({ messages }) => {
-  const scrollRef = useRef(null); // 마지막 메시지를 참조하기 위한 ref 생성
+  const scrollRef = useRef(null);
+  const senderId = localStorage.getItem("senderId");
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" }); // 최신 메시지로 스크롤
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]); // messages 상태 변경 시 실행
+  }, [messages]);
 
   return (
     <div className="chat-body">
       {messages.map((msg, index) => (
         <div
           key={index}
-          className={`message ${msg.isSent ? "sent" : "received"}`}>
-          <p>{msg.text}</p>
-          <span>{msg.time}</span>
+          className={`message ${msg.senderId === senderId ? "sent" : "received"}`}
+        >
+          <p>{msg.content || msg.comment}</p>
+          <span>
+            {msg.sentAt
+              ? new Date(msg.sentAt).toLocaleTimeString("ko-KR")
+              : new Date().toLocaleTimeString("ko-KR")}
+          </span>
         </div>
       ))}
-      {/* 마지막 메시지를 참조할 빈 div */}
       <div ref={scrollRef}></div>
     </div>
   );

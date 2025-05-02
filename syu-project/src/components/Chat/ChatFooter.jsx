@@ -8,32 +8,23 @@ const ChatFooter = ({ stompClient, postId, setMessages }) => {
 
     const senderId = localStorage.getItem("senderId") || "unknown";
 
-    if (message.trim() && stompClient && stompClient.connected) {
-      const newMessage = {
-        chatRoomId: Number(postId),
-        senderId: senderId,
-        comment: message,
-      };
-
-      console.log("[🚀 메시지 전송]:", newMessage);
-
-      // ✅ publish 방식으로 전송!
-      stompClient.publish({
-        destination: "/app/chat.send", // @MessageMapping("/chat.send")와 일치해야 함
-        body: JSON.stringify(newMessage),
-      });
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...newMessage,
-          isSent: true,
-          time: new Date().toLocaleTimeString(),
-        },
-      ]);
-
-      setMessage("");
+    if (!stompClient || !stompClient.connected) {
+      console.warn("⚠️ 메시지를 전송할 수 없습니다. WebSocket 연결 상태를 확인하세요.");
+      return;
     }
+
+    const newMessage = {
+      chatRoomId: Number(postId),
+      senderId: senderId,
+      comment: message,
+    };
+
+    stompClient.publish({
+      destination: "/app/chat.send",
+      body: JSON.stringify(newMessage),
+    });
+
+    setMessage("");
   };
 
   return (
