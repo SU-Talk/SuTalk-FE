@@ -16,7 +16,7 @@ const ChatFooter = ({ stompClient, postId, setMessages }) => {
     const newMessage = {
       chatRoomId: Number(postId),
       senderId: senderId,
-      comment: message,
+      content: message, // ✅ 핵심 수정
     };
 
     stompClient.publish({

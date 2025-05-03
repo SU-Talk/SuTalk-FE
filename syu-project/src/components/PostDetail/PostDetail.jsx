@@ -1,3 +1,4 @@
+// 📁 PostDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
@@ -10,13 +11,11 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/items/${postId}`);
+        const response = await fetch(`/api/items/${postId}`);
         if (!response.ok) throw new Error("Failed to fetch post data");
         const data = await response.json();
         setPost(data);
@@ -29,90 +28,61 @@ const PostDetail = () => {
     fetchPost();
   }, [postId]);
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = (e) => {
-    setTouchEnd(e.changedTouches[0].clientX);
-    const SWIPE_THRESHOLD = 50;
-    if (touchStart - touchEnd > SWIPE_THRESHOLD) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    } else if (touchEnd - touchStart > SWIPE_THRESHOLD) {
-      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    }
-  };
-
-  const images =
-    post?.itemImages?.map((path) => `http://localhost:8080${path}`) ||
-    [post?.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png"];
-
-  const handleDotClick = (index) => {
-    setCurrentImageIndex(index);
-  };
-
   const handleStartChat = async () => {
-    const senderId = localStorage.getItem("senderId");
-    if (!senderId) {
-      alert("로그인이 필요합니다.");
+    const buyerId = localStorage.getItem("senderId");
+    const sellerId = post?.sellerId;
+
+    if (!buyerId || !sellerId) {
+      alert("로그인 또는 판매자 정보가 필요합니다.");
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/chat-room`, {
+      const transactionRes = await fetch(`/api/transactions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          buyerId,
+          sellerId,
           itemId: postId,
-          senderId: senderId,
         }),
       });
+      
 
-      if (!response.ok) throw new Error("채팅방 생성 실패");
+      if (!transactionRes.ok) throw new Error("거래 생성 실패");
+      const transactionData = await transactionRes.json();
+      const transactionId = transactionData.transactionid;
 
-      const data = await response.json();
-      const chatRoomId = data.chatRoomId;
-      navigate(`/chatroom/${chatRoomId}`);
+      const chatRoomRes = await fetch(
+        `/api/chat-rooms?itemTransactionId=${transactionId}&buyerId=${buyerId}&sellerId=${sellerId}`,
+        { method: "POST" }
+      );
+
+      if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
+      const chatRoomData = await chatRoomRes.json();
+
+      navigate(`/chat/${chatRoomData.chatroomid}`); // ✅ 경로 통일
     } catch (error) {
-      console.error("채팅방 이동 실패:", error);
-      alert("채팅방 생성 중 오류가 발생했습니다.");
+      console.error("❌ 채팅 시작 실패:", error);
+      alert("채팅을 시작하는 도중 오류가 발생했습니다.");
     }
   };
 
   if (loading) return <p>Loading...</p>;
   if (!post) return <p>Post not found</p>;
 
+  const images = post?.itemImages?.map((path) => `http://localhost:8080${path}`) || [
+    post?.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png",
+  ];
+
   return (
     <div className="post-detail-container">
       <TopBar />
-      <div
-        className="slider-container"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <img
-          src={images[currentImageIndex]}
-          alt={`Slide ${currentImageIndex + 1}`}
-          className="slider-image"
-        />
-        <div className="dots-container">
-          {images.map((_, index) => (
-            <span
-              key={index}
-              className={`dot ${currentImageIndex === index ? "active" : ""}`}
-              onClick={() => handleDotClick(index)}
-            ></span>
-          ))}
-        </div>
-      </div>
+      <img src={images[currentImageIndex]} alt="상품 이미지" className="slider-image" />
       <div className="comment-container">
         <h1>{post.title}</h1>
         <div className="category-tag">{post.category}</div>
-        <div className="description">
-          <p>{post.description}</p>
-        </div>
+        <p>{post.description}</p>
         <p>장소: {post.meetLocation}</p>
         <p>게시일: {post.time}</p>
         <button className="chat-button" onClick={handleStartChat}>
