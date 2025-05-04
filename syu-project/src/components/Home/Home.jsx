@@ -9,76 +9,74 @@ import CategoryFilter from "../CategoryFilter/CategoryFilter";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("전체");
-  const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q")?.toLowerCase() || "";
 
+  // 텍스트 하이라이트
   const highlightText = (text) => {
     if (!searchQuery || !text) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
-    return text
-      .split(regex)
-      .map((part, index) =>
-        regex.test(part) ? <mark key={index}>{part}</mark> : part
-      );
+    return text.split(regex).map((part, index) =>
+      regex.test(part) ? <mark key={index}>{part}</mark> : part
+    );
   };
 
+  // 전체 아이템 불러오기
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:8080/api/items");
-        if (!response.ok) throw new Error("Network response was not ok");
-
+        const response = await fetch("/api/items");
+        if (!response.ok) throw new Error("네트워크 오류");
         const data = await response.json();
-        console.log("✅ 응답 데이터:", data);
-
-        setPosts((prevPosts) => {
-          const newPosts = data.filter(
-            (post) => !prevPosts.find((p) => p.itemid === post.itemid)
-          );
-          return [...prevPosts, ...newPosts];
-        });
+        console.log("✅ 받아온 데이터:", data);
+        setPosts(data); // 덮어쓰기
       } catch (error) {
-        console.error("❌ Error fetching post data:", error);
+        console.error("❌ 데이터 가져오기 실패:", error);
       }
       setLoading(false);
     };
-
     fetchPosts();
-  }, [page]);
+  }, []);
 
+  // 카테고리 & 검색 필터
   useEffect(() => {
-    let result = posts;
+    let result = [...posts];
 
     if (selectedCategory !== "전체") {
-      result = result.filter((post) => post.category === selectedCategory);
+      result = result.filter(
+        (post) =>
+          (post.category || "").toLowerCase().trim() ===
+          selectedCategory.toLowerCase().trim()
+      );
     }
 
     if (searchQuery) {
-      result = result.filter((post) =>
-        (post.title?.toLowerCase() || "").includes(searchQuery) ||
-        (post.comment?.toLowerCase() || "").includes(searchQuery)
+      result = result.filter(
+        (post) =>
+          (post.title?.toLowerCase() || "").includes(searchQuery) ||
+          (post.description?.toLowerCase() || "").includes(searchQuery)
       );
     }
 
     setFilteredPosts(result);
   }, [posts, selectedCategory, searchQuery]);
 
+  // 무한 스크롤
   useEffect(() => {
     const handleScroll = () => {
       if (
-        window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 100 &&
+        window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 100 &&
         !loading
       ) {
         setPage((prevPage) => prevPage + 1);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
@@ -111,12 +109,16 @@ const Home = () => {
               : "/assets/default-image.png";
 
           return (
-            <Link to={`/post/${post.itemid}`} key={post.itemid} className="home-PostCard">
+            <Link
+              to={`/post/${post.itemid}`}
+              key={post.itemid}
+              className="home-PostCard"
+            >
               <img src={thumbnail} alt={post.title || "게시물"} />
               <div className="home-PostDetails">
                 <h3>{highlightText(post.title || "제목 없음")}</h3>
                 <div className="post-metadata">
-                  <p>{post.time || "시간 없음"}</p>
+                  <p>{post.regdate || "시간 없음"}</p>
                   <p>
                     {typeof post.price === "number"
                       ? post.price.toLocaleString() + "원"
@@ -124,7 +126,7 @@ const Home = () => {
                   </p>
                 </div>
                 <p className="post-comment">
-                  {highlightText(post.comment || "설명 없음")}
+                  {highlightText(post.description || "설명 없음")}
                 </p>
               </div>
             </Link>

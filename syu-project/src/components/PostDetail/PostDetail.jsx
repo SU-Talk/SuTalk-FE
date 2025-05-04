@@ -1,4 +1,3 @@
-// 📁 PostDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
@@ -20,7 +19,7 @@ const PostDetail = () => {
         const data = await response.json();
         setPost(data);
       } catch (error) {
-        console.error("Error fetching post data:", error);
+        console.error("❌ 게시글 데이터 로딩 실패:", error);
       } finally {
         setLoading(false);
       }
@@ -38,6 +37,9 @@ const PostDetail = () => {
     }
 
     try {
+      console.log("🧨 버튼 클릭됨!");
+      console.log("📦 거래 생성 요청 시작", { buyerId, sellerId, itemId: postId });
+
       const transactionRes = await fetch(`/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,21 +49,39 @@ const PostDetail = () => {
           itemId: postId,
         }),
       });
-      
 
       if (!transactionRes.ok) throw new Error("거래 생성 실패");
       const transactionData = await transactionRes.json();
+      console.log("✅ 거래 생성 완료:", transactionData);
+
       const transactionId = transactionData.transactionid;
 
-      const chatRoomRes = await fetch(
-        `/api/chat-rooms?itemTransactionId=${transactionId}&buyerId=${buyerId}&sellerId=${sellerId}`,
-        { method: "POST" }
-      );
+      console.log("✉️ 채팅방 생성 요청 시작", {
+        itemTransactionId: transactionId,
+        buyerId,
+        sellerId,
+      });
+
+      const chatRoomRes = await fetch(`/api/chat-rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemTransactionId: transactionId,
+          buyerId,
+          sellerId,
+        }),
+      });
 
       if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
-      const chatRoomData = await chatRoomRes.json();
 
-      navigate(`/chat/${chatRoomData.chatroomid}`); // ✅ 경로 통일
+      const chatRoomData = await chatRoomRes.json();
+      console.log("📬 채팅방 응답:", chatRoomData);
+
+      // ✅ 다양한 응답 케이스 대응
+      const chatRoomId = chatRoomData.chatroomId || chatRoomData.chatRoomId || chatRoomData.chatroomid;
+      if (!chatRoomId) throw new Error("chatRoomId가 응답에 없습니다!");
+
+      navigate(`/chat/${chatRoomId}`);
     } catch (error) {
       console.error("❌ 채팅 시작 실패:", error);
       alert("채팅을 시작하는 도중 오류가 발생했습니다.");
@@ -71,9 +91,10 @@ const PostDetail = () => {
   if (loading) return <p>Loading...</p>;
   if (!post) return <p>Post not found</p>;
 
-  const images = post?.itemImages?.map((path) => `http://localhost:8080${path}`) || [
-    post?.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png",
-  ];
+  const images =
+    post?.itemImages?.map((path) => `http://localhost:8080${path}`) || [
+      post?.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png",
+    ];
 
   return (
     <div className="post-detail-container">
@@ -85,6 +106,7 @@ const PostDetail = () => {
         <p>{post.description}</p>
         <p>장소: {post.meetLocation}</p>
         <p>게시일: {post.time}</p>
+
         <button className="chat-button" onClick={handleStartChat}>
           💬 채팅하기
         </button>

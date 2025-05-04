@@ -54,9 +54,10 @@ const PostEdit = () => {
         price: Number(formData.price),
         description: formData.description,
         meetLocation: formData.location,
-        sellerId: "test-user-001",
+        sellerId: localStorage.getItem("senderId"), // ✅ 수정된 부분
         itemImages: [],
       };
+      
 
       const requestForm = new FormData();
       requestForm.append(

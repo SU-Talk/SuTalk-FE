@@ -12,30 +12,38 @@ const ChatRoom = () => {
 
   useEffect(() => {
     axios.get(`/api/chat-messages/${chatRoomId}`)
-      .then((res) => setMessages(res.data))
+      .then((res) => {
+        setMessages(res.data);
+      })
       .catch((err) => console.error("❌ 메시지 불러오기 실패:", err));
-
+  
     const client = new Client({
       brokerURL: "ws://localhost:8080/ws",
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log("✅ WebSocket 연결됨");
+        console.log("🔗 WebSocket 연결됨");
+  
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const data = JSON.parse(message.body);
+          console.log("📩 수신 메시지:", data);
           setMessages((prev) => [...prev, data]);
         });
+  
         setStompClient(client);
       },
-      onStompError: (frame) => console.error("❌ STOMP 에러:", frame),
+      onStompError: (frame) => {
+        console.error("❌ STOMP 에러:", frame);
+      }
     });
-
+  
     client.activate();
-
+  
     return () => {
       client.deactivate();
-      console.log("❎ WebSocket 연결 해제됨");
+      console.log("❎ WebSocket 연결 해제");
     };
   }, [chatRoomId]);
+  
 
   return (
     <div className="chat-room">
@@ -45,7 +53,7 @@ const ChatRoom = () => {
       <ChatBody messages={messages} />
       <ChatFooter
         stompClient={stompClient}
-        postId={chatRoomId}
+        chatRoomId={chatRoomId} 
         setMessages={setMessages}
       />
     </div>

@@ -9,7 +9,6 @@ import {
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import "./App.css";
 
-// 컴포넌트 임포트
 import LoadingPage from "./components/Loading/Loading";
 import HomePage from "./components/Home/Home";
 import ChatRoom from "./components/Chat/ChatRoom";
@@ -78,20 +77,16 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { hasError: false };
   }
-
   static getDerivedStateFromError(error) {
     return { hasError: true };
   }
-
   componentDidCatch(error, errorInfo) {
     console.error("라우트 오류 발생:", error, errorInfo);
   }
-
   render() {
     if (this.state.hasError) {
       return <h2>페이지 로딩 중 오류가 발생했습니다. 새로고침해주세요.</h2>;
     }
-
     return this.props.children;
   }
 }
