@@ -25,22 +25,30 @@ const Home = () => {
     );
   };
 
-  // 전체 아이템 불러오기
+  // 게시글 가져오는 함수
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/items");
+      if (!response.ok) throw new Error("네트워크 오류");
+      const data = await response.json();
+      console.log("✅ 받아온 데이터:", data);
+      setPosts(data);
+    } catch (error) {
+      console.error("❌ 데이터 가져오기 실패:", error);
+    }
+    setLoading(false);
+  };
+
+  // 처음 로딩 + 주기적 새로고침
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/items");
-        if (!response.ok) throw new Error("네트워크 오류");
-        const data = await response.json();
-        console.log("✅ 받아온 데이터:", data);
-        setPosts(data); // 덮어쓰기
-      } catch (error) {
-        console.error("❌ 데이터 가져오기 실패:", error);
-      }
-      setLoading(false);
-    };
     fetchPosts();
+
+    const intervalId = setInterval(() => {
+      fetchPosts(); // 10초마다 자동으로 새로운 데이터 요청
+    }, 10000); // 10000ms = 10초
+
+    return () => clearInterval(intervalId); // cleanup
   }, []);
 
   // 카테고리 & 검색 필터
@@ -66,7 +74,7 @@ const Home = () => {
     setFilteredPosts(result);
   }, [posts, selectedCategory, searchQuery]);
 
-  // 무한 스크롤
+  // 무한 스크롤 (page state는 현재 사용되지 않지만 유지)
   useEffect(() => {
     const handleScroll = () => {
       if (
