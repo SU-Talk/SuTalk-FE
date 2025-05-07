@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Post.css";
@@ -8,14 +8,16 @@ const PostEdit = () => {
   const location = useLocation();
   const { postData: initialData } = location.state || {};
 
+  const isEditMode = !!initialData;
+
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
     category: initialData?.category || "",
     price: initialData?.price || "",
     description: initialData?.description || "",
-    location: initialData?.location || "",
-    images: [], // 이미지 미리보기용 URL 저장
-    imageFiles: [], // 실제 전송용 File 객체 저장
+    location: initialData?.meetLocation || "",
+    images: initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) || [],
+    imageFiles: [],
   });
 
   const handleImageUpload = (e) => {
@@ -44,39 +46,52 @@ const PostEdit = () => {
   };
 
   const handleSubmit = async () => {
-    alert("✅ 작성 완료 버튼 클릭됨!");
-    console.log("🧪 handleSubmit 실행됨!");
+    const sellerId = localStorage.getItem("senderId");
+    if (!sellerId) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
+
+    const itemData = {
+      title: formData.title,
+      category: formData.category,
+      price: Number(formData.price),
+      description: formData.description,
+      meetLocation: formData.location,
+      sellerId,
+    };
+
+    const requestForm = new FormData();
+    requestForm.append(
+      "item",
+      new Blob([JSON.stringify(itemData)], { type: "application/json" })
+    );
+    formData.imageFiles.forEach((file) => requestForm.append("images", file));
 
     try {
-      const itemData = {
-        title: formData.title,
-        category: formData.category,
-        price: Number(formData.price),
-        description: formData.description,
-        meetLocation: formData.location,
-        sellerId: localStorage.getItem("senderId"), // ✅ 수정된 부분
-        itemImages: [],
-      };
-      
+      let response;
+      if (isEditMode) {
+        // 수정 요청
+        response = await axios.put(
+          `http://localhost:8080/api/items/${initialData.itemid}`,
+          requestForm,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        alert("게시글이 수정되었습니다!");
+      } else {
+        // 새 글 등록
+        response = await axios.post("http://localhost:8080/api/items", requestForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("게시글이 작성되었습니다!");
+      }
 
-      const requestForm = new FormData();
-      requestForm.append(
-        "item",
-        new Blob([JSON.stringify(itemData)], { type: "application/json" })
-      );
-      formData.imageFiles.forEach((file) => requestForm.append("images", file));
-
-      const response = await axios.post("http://localhost:8080/api/items", requestForm, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      console.log("✅ 등록 응답:", response.data);
-      alert("게시글이 작성되었습니다!");
       navigate(`/post/${response.data.itemid}`);
     } catch (error) {
-      console.error("❌ 등록 중 에러 발생:", error);
-      console.log("🔍 error.response:", error.response);
-      alert("에러가 발생했어요. 콘솔 확인 부탁!");
+      console.error("❌ 저장 중 에러 발생:", error);
+      alert("에러가 발생했어요. 콘솔을 확인해주세요.");
     }
   };
 
@@ -86,7 +101,7 @@ const PostEdit = () => {
         <button className="close-button" onClick={() => navigate(-1)}>
           &lt;
         </button>
-        <h3>글쓰기</h3>
+        <h3>{isEditMode ? "게시글 수정" : "글쓰기"}</h3>
       </header>
 
       <div className="image-upload">
@@ -121,9 +136,7 @@ const PostEdit = () => {
           type="text"
           placeholder="제목"
           value={formData.title}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, title: e.target.value }))
-          }
+          onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
         />
 
         <select
@@ -178,7 +191,7 @@ const PostEdit = () => {
         />
 
         <button type="button" className="submit-button" onClick={handleSubmit}>
-          작성 완료
+          {isEditMode ? "수정 완료" : "작성 완료"}
         </button>
       </form>
     </div>
