@@ -4,13 +4,17 @@ import "./profile.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faReceipt, faUser } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
+import SellerReviewList from "../Review/SellerReviewList";
 
 const Profile = ({ nickname }) => {
+  const sellerId = localStorage.getItem("senderId");
+
   return (
     <div className="profile-container">
       <header className="profile-header">
         <h2>나의 정보</h2>
       </header>
+
       <div className="profile-info">
         <div className="profile-avatar">
           <FontAwesomeIcon icon={faUser} className="avatar-icon" />
@@ -20,6 +24,7 @@ const Profile = ({ nickname }) => {
           <button className="edit-profile-button">프로필 수정</button>
         </Link>
       </div>
+
       <div className="profile-menu">
         <div className="menu-item">
           <Link to="/profile/favorites" className="menu-link">
@@ -36,6 +41,12 @@ const Profile = ({ nickname }) => {
           <span className="menu-arrow">〉</span>
         </div>
       </div>
+
+      {/* 받은 후기 리스트 */}
+      <div className="profile-reviews">
+        <SellerReviewList sellerId={sellerId} />
+      </div>
+
       <Nav />
     </div>
   );

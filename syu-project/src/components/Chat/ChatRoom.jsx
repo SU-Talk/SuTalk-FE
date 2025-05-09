@@ -1,4 +1,3 @@
-// ChatRoom.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
@@ -15,38 +14,33 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
   const [stompClient, setStompClient] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [itemStatus, setItemStatus] = useState(""); // 추가 상태 추적
+  const [itemStatus, setItemStatus] = useState("");
+  const [transactionId, setTransactionId] = useState(null);
 
   const itemId = location.state?.itemId;
   const chatSellerId = location.state?.sellerId;
   const senderId = localStorage.getItem("senderId");
-
   const isBuyer = senderId && senderId !== chatSellerId;
 
+  // 거래 ID 조회
   useEffect(() => {
-    console.log("🔥 상태 확인용 로그:");
-    console.log("✅ isCompleted:", isCompleted);
-    console.log("✅ senderId:", senderId);
-    console.log("✅ sellerId:", chatSellerId);
-    console.log("✅ isBuyer:", isBuyer);
-  }, [isCompleted, senderId, chatSellerId]);
-  
+    if (itemId && senderId) {
+      axios
+        .get(`/api/transactions/item/${itemId}/user/${senderId}`)
+        .then(res => setTransactionId(res.data.transactionId))
+        .catch(err => console.error("❌ 거래 ID 조회 실패:", err));
+    }
+  }, [itemId, senderId]);
 
   useEffect(() => {
-    // 채팅 메시지 불러오기
     axios.get(`/api/chat-messages/${chatRoomId}`)
-      .then(res => {
-        console.log("📩 메시지 불러오기 성공:", res.data);
-        setMessages(res.data);
-      })
-      .catch(err => console.error("❌ 메시지 불러오기 실패:", err));
+      .then(res => setMessages(res.data))
+      .catch(err => console.error("❌ 메시지 조회 실패:", err));
 
-    // WebSocket 연결
     const client = new Client({
       brokerURL: "ws://localhost:8080/ws",
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log("🟢 WebSocket 연결됨");
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const data = JSON.parse(message.body);
           setMessages(prev => [...prev, data]);
@@ -57,10 +51,7 @@ const ChatRoom = () => {
     });
 
     client.activate();
-    return () => {
-      client.deactivate();
-      console.log("🔌 WebSocket 연결 해제됨");
-    };
+    return () => client.deactivate();
   }, [chatRoomId]);
 
   useEffect(() => {
@@ -68,10 +59,7 @@ const ChatRoom = () => {
     axios.get(`/api/items/${itemId}`)
       .then(res => {
         setItemStatus(res.data.status);
-        if (res.data.status === "거래완료") {
-          console.log("✅ 아이템 상태: 거래완료");
-          setIsCompleted(true);
-        }
+        if (res.data.status === "거래완료") setIsCompleted(true);
       })
       .catch(err => console.error("❌ 아이템 상태 조회 실패:", err));
   }, [itemId]);
@@ -79,20 +67,22 @@ const ChatRoom = () => {
   const handleCompleteDeal = async () => {
     try {
       await axios.post(`/api/items/${itemId}/complete?chatRoomId=${chatRoomId}`);
-      alert("✅ 거래가 완료되었습니다.");
+      alert("거래가 완료되었습니다.");
       setIsCompleted(true);
       setItemStatus("거래완료");
     } catch (err) {
-      console.error("❌ 거래 완료 요청 실패:", err);
-      alert("거래 완료에 실패했습니다.");
+      alert("거래 완료 실패");
     }
   };
 
   const handleReviewWrite = () => {
+    if (!transactionId) return alert("리뷰 대상 정보가 없습니다.");
     navigate("/review", {
       state: {
         itemId,
         buyerId: senderId,
+        sellerId: chatSellerId,
+        transactionId
       }
     });
   };
@@ -108,14 +98,12 @@ const ChatRoom = () => {
 
       <ChatBody messages={messages} />
 
-      {/* 후기 작성 버튼 (구매자 전용) */}
       {isCompleted && isBuyer && (
         <div className="review-banner">
           <button onClick={handleReviewWrite}>📝 후기 작성하기</button>
         </div>
       )}
 
-      {/* 하단 입력창 or 거래 완료 배너 */}
       {isCompleted ? (
         <div className="chat-footer completed-banner">
           거래가 완료된 채팅방입니다.

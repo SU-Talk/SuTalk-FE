@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Review.css";
@@ -6,35 +6,33 @@ import "./Review.css";
 const Review = () => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [sellerName, setSellerName] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
-  // itemId, buyerId를 location.state로 받는다
-  const { itemId } = location.state || {};
-  const buyerId = localStorage.getItem("senderId");
+  const { itemId, buyerId, sellerId, transactionId } = location.state || {};
 
-  const handleRating = (index) => {
-    setRating(index + 1);
-  };
+  useEffect(() => {
+    if (sellerId) {
+      axios.get(`/api/users/${sellerId}`)
+        .then(res => setSellerName(res.data))
+        .catch(err => console.error("❌ 판매자 닉네임 조회 실패:", err));
+    }
+  }, [sellerId]);
+
+  const handleRating = (index) => setRating(index + 1);
 
   const handleComplete = async () => {
-    if (!rating) {
-      alert("별점을 선택해주세요.");
-      return;
-    }
-    if (!reviewText.trim()) {
-      alert("리뷰 내용을 작성해주세요.");
-      return;
-    }
-    if (!itemId || !buyerId) {
-      alert("리뷰 대상 정보가 없습니다.");
-      return;
+    if (!rating || !reviewText.trim() || !itemId || !buyerId || !transactionId || !sellerId) {
+      return alert("리뷰 대상 정보가 없습니다.");
     }
 
     try {
       await axios.post("/api/reviews", {
         itemId,
         buyerId,
+        revieweeId: sellerId,
+        transactionId,
         rating,
         comment: reviewText,
       });
@@ -46,48 +44,36 @@ const Review = () => {
     }
   };
 
-  const handleReport = () => {
-    navigate("/report");
-  };
+  const handleReport = () => navigate("/report");
 
   return (
     <div className="review-container">
       <header className="review-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          &lt;
-        </button>
+        <button className="back-button" onClick={() => navigate(-1)}>&lt;</button>
         <h3>리뷰하기</h3>
-        <button className="report-button" onClick={handleReport}>
-          신고
-        </button>
+        <button className="report-button" onClick={handleReport}>신고</button>
       </header>
+
       <div className="review-content">
         <div className="profile-avatar">
-          <img
-            src="/assets/수야.png"
-            alt="프로필 이미지"
-            className="profile-image"
-          />
+          <img src="/assets/수야.png" alt="프로필 이미지" className="profile-image" />
         </div>
-        <h3 className="profile-name">궁예</h3>
+        <h3 className="profile-name">{sellerName || "판매자"}</h3>
+
         <div className="stars">
           {[...Array(5)].map((_, index) => (
-            <span
-              key={index}
-              className={`star ${index < rating ? "filled" : ""}`}
-              onClick={() => handleRating(index)}>
-              ★
-            </span>
+            <span key={index} className={`star ${index < rating ? "filled" : ""}`} onClick={() => handleRating(index)}>★</span>
           ))}
         </div>
+
         <textarea
           className="review-textarea"
           placeholder="리뷰 내용을 작성해주세요."
           value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}></textarea>
-        <button className="complete-button" onClick={handleComplete}>
-          완료
-        </button>
+          onChange={(e) => setReviewText(e.target.value)}
+        ></textarea>
+
+        <button className="complete-button" onClick={handleComplete}>완료</button>
       </div>
     </div>
   );

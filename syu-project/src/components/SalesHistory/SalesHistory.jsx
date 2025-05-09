@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./SalesHistory.css";
 
 const SalesHistory = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("판매중");
-  const [salesData, setSalesData] = useState({ 판매중: [], 거래완료: [] });
+  const [salesData, setSalesData] = useState({ 판매중: [], 예약중: [], 거래완료: [] });
 
   const fetchSalesData = async () => {
     const userId = localStorage.getItem("senderId");
@@ -21,7 +21,6 @@ const SalesHistory = () => {
         거래완료: data.filter((post) => post.status === "거래완료"),
       };
       setSalesData(categorized);
-      
     } catch (error) {
       console.error("Error fetching sales data:", error);
     }
@@ -65,6 +64,7 @@ const SalesHistory = () => {
         <button className="back-button" onClick={() => navigate(-1)}>&lt;</button>
         <h2>나의 판매 내역</h2>
       </header>
+
       <div className="tabs">
         <button className={`tab-button ${activeTab === "판매중" ? "active" : ""}`} onClick={() => setActiveTab("판매중")}>판매중</button>
         <button className={`tab-button ${activeTab === "예약중" ? "active" : ""}`} onClick={() => setActiveTab("예약중")}>예약중</button>
@@ -83,6 +83,7 @@ const SalesHistory = () => {
               <h3>{item.title}</h3>
               <p>{item.regdate}</p>
               <p>{item.price.toLocaleString()}원</p>
+
               {activeTab === "판매중" && (
                 <>
                   <div className="actions">
@@ -95,16 +96,15 @@ const SalesHistory = () => {
                   </div>
                 </>
               )}
-              {activeTab === "거래완료" && (
-               <Link
-               to="/review"
-               state={{ itemId: item.itemid }} // ✅ itemId 넘기기
-             >
-               <button className="review-button">후기 남기기</button>
-             </Link>
-             
-             
+
+              {activeTab === "예약중" && (
+                <div className="status-buttons">
+                  <button onClick={() => handleStatusChange(item.itemid, "판매중")}>판매중</button>
+                  <button onClick={() => handleStatusChange(item.itemid, "거래완료")}>거래완료</button>
+                </div>
               )}
+
+              {/* 거래완료 탭에서는 후기 남기기 버튼 제거 */}
             </div>
           </div>
         ))}
