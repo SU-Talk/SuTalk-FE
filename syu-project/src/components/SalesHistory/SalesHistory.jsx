@@ -96,9 +96,14 @@ const SalesHistory = () => {
                 </>
               )}
               {activeTab === "거래완료" && (
-                <Link to="/review">
-                  <button className="review-button">후기 남기기</button>
-                </Link>
+               <Link
+               to="/review"
+               state={{ itemId: item.itemid }} // ✅ itemId 넘기기
+             >
+               <button className="review-button">후기 남기기</button>
+             </Link>
+             
+             
               )}
             </div>
           </div>

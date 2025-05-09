@@ -1,19 +1,23 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import "./Review.css";
 
 const Review = () => {
-  const [rating, setRating] = useState(0); // 별점 상태
-  const [reviewText, setReviewText] = useState(""); // 리뷰 내용 상태
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // 별점 클릭 핸들러
+  // itemId, buyerId를 location.state로 받는다
+  const { itemId } = location.state || {};
+  const buyerId = localStorage.getItem("senderId");
+
   const handleRating = (index) => {
-    setRating(index + 1); // 클릭한 별의 인덱스에 1을 더해 별점 설정
+    setRating(index + 1);
   };
 
-  // 완료 버튼 클릭 핸들러
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!rating) {
       alert("별점을 선택해주세요.");
       return;
@@ -22,11 +26,26 @@ const Review = () => {
       alert("리뷰 내용을 작성해주세요.");
       return;
     }
-    alert(`별점: ${rating}점\n리뷰 내용: ${reviewText}`);
-    navigate(-1); // 완료 후 이전 페이지로 이동
+    if (!itemId || !buyerId) {
+      alert("리뷰 대상 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      await axios.post("/api/reviews", {
+        itemId,
+        buyerId,
+        rating,
+        comment: reviewText,
+      });
+      alert("리뷰가 저장되었습니다!");
+      navigate(-1);
+    } catch (err) {
+      console.error("리뷰 저장 오류:", err);
+      alert("리뷰 저장에 실패했습니다.");
+    }
   };
 
-  // 신고하기 핸들러
   const handleReport = () => {
     navigate("/report");
   };

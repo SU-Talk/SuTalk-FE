@@ -10,18 +10,12 @@ const ChatList = () => {
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const response = await fetch(`/api/chat-rooms?userId=${senderId}`);
-        if (!response.ok) {
-          const text = await response.text();
-          console.error("⚠️ 응답 상태:", response.status);
-          console.error("⚠️ 응답 본문:", text);
-          throw new Error("채팅 목록 불러오기 실패");
-        }
-        const data = await response.json();
-        console.log("📦 채팅방 목록:", data);
+        const res = await fetch(`/api/chat-rooms?userId=${senderId}`);
+        if (!res.ok) throw new Error("채팅 목록 조회 실패");
+        const data = await res.json();
         setChats(data);
-      } catch (error) {
-        console.error("❌ 채팅 목록 불러오기 실패:", error);
+      } catch (err) {
+        console.error("❌ 채팅 목록 오류:", err);
       }
     };
 
@@ -30,17 +24,19 @@ const ChatList = () => {
 
   return (
     <div className="chat-list-container">
-      <header className="chat-header">
-        <h3>채팅</h3>
-      </header>
+      <header className="chat-header"><h3>채팅</h3></header>
       <div className="chat-items">
         {chats.length === 0 ? (
           <p style={{ padding: "1rem" }}>채팅방이 없습니다</p>
         ) : (
           chats.map((chat, idx) => (
             <Link
-              to={`/chat/${chat.chatroomId || chat.chatroomid}`}
-              key={chat.chatroomId || chat.chatroomid || idx}
+              key={chat.chatroomId || idx}
+              to={`/chat/${chat.chatroomId}`}
+              state={{
+                itemId: chat.itemId,
+                sellerId: chat.sellerId,
+              }}
               className="chat-item"
             >
               <div className="chat-info">
@@ -49,8 +45,7 @@ const ChatList = () => {
               </div>
               <span className="chat-time">
                 {new Date(chat.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
+                  hour: "2-digit", minute: "2-digit"
                 })}
               </span>
             </Link>
