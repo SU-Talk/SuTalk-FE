@@ -44,7 +44,21 @@ const Review = () => {
     }
   };
 
-  const handleReport = () => navigate("/report");
+  const handleReport = () => {
+  if (!buyerId || !sellerId || !itemId) {
+    alert("신고 대상 정보가 부족합니다.");
+    return;
+  }
+
+  navigate("/report", {
+    state: {
+      reporterId: buyerId,
+      reportedId: sellerId,
+      itemId: itemId,
+    },
+  });
+};
+
 
   return (
     <div className="review-container">

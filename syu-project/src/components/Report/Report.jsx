@@ -1,27 +1,52 @@
 import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Report.css";
 
 const Report = () => {
   const [selectedReason, setSelectedReason] = useState(""); // 선택된 신고 사유
-  const [additionalText, setAdditionalText] = useState(""); // 추가 입력 내용
+  const [additionalText, setAdditionalText] = useState(""); // 기타 추가 입력
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSubmit = () => {
+  // 📦 신고 대상 정보 (Review.jsx → navigate로 전달됨)
+  const { reporterId, reportedId, itemId } = location.state || {};
+
+  const handleSubmit = async () => {
     if (!selectedReason) {
       alert("신고 사유를 선택해주세요.");
       return;
     }
-    alert(`신고 사유: ${selectedReason}\n추가 내용: ${additionalText}`);
-    // 서버로 데이터 전송 로직 추가 가능
+
+    const reason = selectedReason === "기타 부적절한 행위"
+      ? `${selectedReason}: ${additionalText}`
+      : selectedReason;
+
+    try {
+      await axios.post("/api/reports", {
+        reporterId,
+        reportedId,
+        itemId,
+        reason
+      });
+
+      alert("신고가 접수되었습니다.");
+      navigate(-1);
+    } catch (error) {
+      console.error("❌ 신고 실패:", error);
+      alert("신고 중 오류가 발생했습니다.");
+    }
   };
 
   return (
     <div className="report-container">
       <header className="report-header">
-        <button className="close-button" onClick={() => window.history.back()}>
+        <button className="close-button" onClick={() => navigate(-1)}>
           &lt;
         </button>
         <h3>신고하기</h3>
       </header>
+
       <div className="report-content">
         <p>신고하는 사유를 선택해주세요.</p>
         <form>
@@ -65,9 +90,11 @@ const Report = () => {
             <textarea
               placeholder="입력하세요."
               value={additionalText}
-              onChange={(e) => setAdditionalText(e.target.value)}></textarea>
+              onChange={(e) => setAdditionalText(e.target.value)}
+            ></textarea>
           )}
         </form>
+
         <button className="submit-button" onClick={handleSubmit}>
           제출
         </button>
