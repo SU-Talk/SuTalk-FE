@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 페이지 이동을 위한 navigate 추가
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
@@ -7,31 +7,55 @@ import "./BottomBar.css";
 
 const BottomBar = ({ postId, price }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  const navigate = useNavigate(); // 페이지 이동을 위한 navigate 함수
+  const [likeCount, setLikeCount] = useState(0);
+  const navigate = useNavigate();
+  const senderId = localStorage.getItem("senderId");
 
+  // 👉 좋아요 상태 & 수 초기 로딩
   useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    setIsFavorite(favorites.includes(postId));
-  }, [postId]);
+    const fetchLikeStatus = async () => {
+      try {
+        const [isLikedRes, countRes] = await Promise.all([
+          fetch(`/api/likes/${postId}/is-liked?userId=${senderId}`),
+          fetch(`/api/likes/${postId}/count`)
+        ]);
 
-  // 즐겨찾기 클릭 핸들러
-  const handleFavoriteClick = () => {
-    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        if (isLikedRes.ok) {
+          const liked = await isLikedRes.json();
+          setIsFavorite(liked);
+        }
 
-    if (isFavorite) {
-      const updatedFavorites = favorites.filter((id) => id !== postId);
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-      setIsFavorite(false);
-    } else {
-      favorites.push(postId);
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      setIsFavorite(true);
+        if (countRes.ok) {
+          const count = await countRes.json();
+          setLikeCount(count);
+        }
+      } catch (err) {
+        console.error("❌ 좋아요 정보 불러오기 실패:", err);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [postId, senderId]);
+
+  // 👉 하트 토글 핸들러
+  const handleFavoriteClick = async () => {
+    try {
+      if (isFavorite) {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
+        setIsFavorite(false);
+        setLikeCount((prev) => prev - 1);
+      } else {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
+        setIsFavorite(true);
+        setLikeCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error("❌ 좋아요 토글 실패:", err);
     }
   };
 
-  // 채팅하기 버튼 클릭 핸들러
   const handleChatClick = () => {
-    navigate(`/chat/${postId}`); // 해당 게시글의 채팅룸으로 이동
+    navigate(`/chat/${postId}`);
   };
 
   return (
@@ -42,7 +66,8 @@ const BottomBar = ({ postId, price }) => {
           className={`heart-icon ${isFavorite ? "favorite" : ""}`}
           onClick={handleFavoriteClick}
         />
-        <span className="price">{price}</span>
+        <span className="like-count">{likeCount}</span>
+        <span className="price">{price.toLocaleString()}원</span>
       </div>
       <button className="chat-button" onClick={handleChatClick}>
         채팅하기

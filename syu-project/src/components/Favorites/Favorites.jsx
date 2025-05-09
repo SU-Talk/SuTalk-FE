@@ -1,44 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // useNavigate 추가
+import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import "./Favorites.css";
 import Nav from "../Nav/Nav";
 
 const Favorites = () => {
-  const [favorites, setFavorites] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const navigate = useNavigate(); // navigate 훅 생성
+  const [favoriteItems, setFavoriteItems] = useState([]);
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
+  const senderId = localStorage.getItem("senderId");
 
-  // 로컬 스토리지에서 관심 목록 가져오기
   useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    setFavorites(storedFavorites);
-    console.log("저장된 관심 목록:", storedFavorites); // 디버깅용
-  }, []);
-
-  // 전체 게시글 데이터 가져오기
-  useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchFavorites = async () => {
       try {
-        const response = await fetch("/dummyData.json");
-        if (!response.ok) throw new Error("데이터를 가져오는데 실패했습니다.");
+        const response = await fetch(`/api/likes/my?userId=${senderId}`);
+        if (!response.ok) throw new Error("관심 목록 불러오기 실패");
         const data = await response.json();
-        setPosts(data.posts);
-        console.log("불러온 게시글:", data.posts); // 디버깅용
+        setFavoriteItems(data); // 서버에서 받은 Item 리스트
       } catch (error) {
-        console.error("Error fetching dummy data:", error);
+        console.error("❌ 관심 목록 조회 오류:", error);
+        setError(true);
       }
     };
 
-    fetchPosts();
-  }, []);
+    if (senderId) {
+      fetchFavorites();
+    }
+  }, [senderId]);
 
-  // 타입 변환을 통해 문자열과 숫자 ID 모두 처리
-  const filteredFavorites = posts.filter(
-    (post) =>
-      favorites.includes(String(post.id)) || favorites.includes(Number(post.id))
-  );
-
-  console.log("필터링된 관심 목록:", filteredFavorites); // 디버깅용
+  if (error) {
+    return (
+      <div className="favorites-container">
+        <p style={{ padding: "30px", fontWeight: "bold" }}>
+          페이지 로딩 중 오류가 발생했습니다. 새로 고침해주세요.
+        </p>
+        <Nav />
+      </div>
+    );
+  }
 
   return (
     <div className="favorites-container">
@@ -48,23 +48,29 @@ const Favorites = () => {
         </button>
         <h2>관심 목록</h2>
       </header>
+
       <div className="favorites-list">
-        {filteredFavorites.length > 0 ? (
-          filteredFavorites.map((post) => (
-            <Link
-              to={`/post/${post.id}`}
-              key={post.id}
-              className="favorite-item">
+        {favoriteItems.length > 0 ? (
+          favoriteItems.map((post) => (
+            <Link to={`/post/${post.itemid}`} key={post.itemid} className="favorite-item">
               <div className="favorite-thumbnail">
                 <img
-                  src={post.thumbnail || "/assets/default-image.png"}
+                  src={
+                    post.thumbnail
+                      ? `http://localhost:8080${post.thumbnail}`
+                      : "/assets/default-image.png"
+                  }
                   alt={post.title}
                   className="favorite-image"
                 />
               </div>
               <div className="favorite-details">
                 <h3>{post.title}</h3>
-                <p>{post.price}</p>
+                <p>{post.price != null ? `${post.price.toLocaleString()}원` : "가격 정보 없음"}</p>
+                <div className="favorite-like-count">
+                  <FontAwesomeIcon icon={faHeart} style={{ color: "#f55", marginRight: "4px" }} />
+                  <span>{post.likeCount ?? 0}</span>
+                </div>
               </div>
             </Link>
           ))
@@ -72,6 +78,7 @@ const Favorites = () => {
           <p className="no-favorites">관심 목록이 비어 있습니다.</p>
         )}
       </div>
+
       <Nav />
     </div>
   );

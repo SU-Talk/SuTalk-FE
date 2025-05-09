@@ -104,3 +104,18 @@
     height: calc(100vh - 400px); /* 화면 높이에 맞게 조정 */
   }
 }
+
+.favorite-bottom-bar {
+  position: fixed;
+  bottom: 60px;
+  left: 16px;
+}
+
+.favorite-button {
+  background: none;
+  border: none;
+  color: #2670ff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}

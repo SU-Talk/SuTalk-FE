@@ -37,9 +37,6 @@ const PostDetail = () => {
     }
 
     try {
-      console.log("🧨 버튼 클릭됨!");
-      console.log("📦 거래 생성 요청 시작", { buyerId, sellerId, itemId: postId });
-
       const transactionRes = await fetch(`/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,15 +49,7 @@ const PostDetail = () => {
 
       if (!transactionRes.ok) throw new Error("거래 생성 실패");
       const transactionData = await transactionRes.json();
-      console.log("✅ 거래 생성 완료:", transactionData);
-
       const transactionId = transactionData.transactionid;
-
-      console.log("✉️ 채팅방 생성 요청 시작", {
-        itemTransactionId: transactionId,
-        buyerId,
-        sellerId,
-      });
 
       const chatRoomRes = await fetch(`/api/chat-rooms`, {
         method: "POST",
@@ -75,9 +64,6 @@ const PostDetail = () => {
       if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
 
       const chatRoomData = await chatRoomRes.json();
-      console.log("📬 채팅방 응답:", chatRoomData);
-
-      // ✅ 다양한 응답 케이스 대응
       const chatRoomId = chatRoomData.chatroomId || chatRoomData.chatRoomId || chatRoomData.chatroomid;
       if (!chatRoomId) throw new Error("chatRoomId가 응답에 없습니다!");
 
@@ -111,6 +97,7 @@ const PostDetail = () => {
           💬 채팅하기
         </button>
       </div>
+
       <BottomBar postId={postId} price={post.price} />
     </div>
   );
