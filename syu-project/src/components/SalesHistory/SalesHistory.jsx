@@ -7,26 +7,27 @@ const SalesHistory = () => {
   const [activeTab, setActiveTab] = useState("판매중");
   const [salesData, setSalesData] = useState({ 판매중: [], 거래완료: [] });
 
+  const fetchSalesData = async () => {
+    const userId = localStorage.getItem("senderId");
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`/api/items/mine?userId=${userId}`);
+      if (!response.ok) throw new Error("데이터를 가져오는데 실패했습니다.");
+      const data = await response.json();
+      const categorized = {
+        판매중: data.filter((post) => post.status === "판매중"),
+        예약중: data.filter((post) => post.status === "예약중"),
+        거래완료: data.filter((post) => post.status === "거래완료"),
+      };
+      setSalesData(categorized);
+      
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchSalesData = async () => {
-      const userId = localStorage.getItem("senderId");
-      if (!userId) return;
-
-      try {
-        const response = await fetch(`/api/items/mine?userId=${userId}`);
-        if (!response.ok) throw new Error("데이터를 가져오는데 실패했습니다.");
-        const data = await response.json();
-
-        const categorized = {
-          판매중: data.filter((post) => post.status === "판매중"),
-          거래완료: data.filter((post) => post.status === "거래완료"),
-        };
-        setSalesData(categorized);
-      } catch (error) {
-        console.error("Error fetching sales data:", error);
-      }
-    };
-
     fetchSalesData();
   }, []);
 
@@ -36,49 +37,45 @@ const SalesHistory = () => {
 
   const handleDelete = async (itemid) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
-
     try {
-      // await fetch(`/api/items/${itemid}`, { method: "DELETE" }); // 필요 시 구현
-      setSalesData((prev) => ({
-        판매중: prev.판매중.filter((item) => item.itemid !== itemid),
-        거래완료: prev.거래완료.filter((item) => item.itemid !== itemid),
-      }));
+      await fetch(`/api/items/${itemid}`, { method: "DELETE" });
+      fetchSalesData(); // 갱신
     } catch (error) {
       console.error("삭제 실패:", error);
+    }
+  };
+
+  const handleStatusChange = async (itemid, newStatus) => {
+    try {
+      const response = await fetch(`/api/items/${itemid}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) throw new Error("상태 변경 실패");
+      fetchSalesData(); // 상태 변경 후 데이터 새로고침
+    } catch (error) {
+      console.error("상태 변경 실패:", error);
     }
   };
 
   return (
     <div className="sales-history-container">
       <header className="sales-history-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          &lt;
-        </button>
+        <button className="back-button" onClick={() => navigate(-1)}>&lt;</button>
         <h2>나의 판매 내역</h2>
       </header>
       <div className="tabs">
-        <button
-          className={`tab-button ${activeTab === "판매중" ? "active" : ""}`}
-          onClick={() => setActiveTab("판매중")}
-        >
-          판매중
-        </button>
-        <button
-          className={`tab-button ${activeTab === "거래완료" ? "active" : ""}`}
-          onClick={() => setActiveTab("거래완료")}
-        >
-          거래완료
-        </button>
+        <button className={`tab-button ${activeTab === "판매중" ? "active" : ""}`} onClick={() => setActiveTab("판매중")}>판매중</button>
+        <button className={`tab-button ${activeTab === "예약중" ? "active" : ""}`} onClick={() => setActiveTab("예약중")}>예약중</button>
+        <button className={`tab-button ${activeTab === "거래완료" ? "active" : ""}`} onClick={() => setActiveTab("거래완료")}>거래완료</button>
       </div>
+
       <div className="sales-list">
-        {salesData[activeTab].map((item) => (
+        {(salesData[activeTab] || []).map((item) => (
           <div key={item.itemid} className="sales-item">
             <img
-              src={
-                item.itemImages?.length > 0
-                  ? `http://localhost:8080${item.itemImages[0]}`
-                  : "/assets/default-image.png"
-              }
+              src={item.itemImages?.length > 0 ? `http://localhost:8080${item.itemImages[0]}` : "/assets/default-image.png"}
               alt={item.title}
               className="sales-image"
             />
@@ -87,10 +84,16 @@ const SalesHistory = () => {
               <p>{item.regdate}</p>
               <p>{item.price.toLocaleString()}원</p>
               {activeTab === "판매중" && (
-                <div className="actions">
-                  <button className="edit-button" onClick={() => handleEdit(item)}>✏️</button>
-                  <button className="delete-button" onClick={() => handleDelete(item.itemid)}>🗑️</button>
-                </div>
+                <>
+                  <div className="actions">
+                    <button className="edit-button" onClick={() => handleEdit(item)}>✏️</button>
+                    <button className="delete-button" onClick={() => handleDelete(item.itemid)}>🗑️</button>
+                  </div>
+                  <div className="status-buttons">
+                    <button onClick={() => handleStatusChange(item.itemid, "예약중")}>예약중</button>
+                    <button onClick={() => handleStatusChange(item.itemid, "거래완료")}>거래완료</button>
+                  </div>
+                </>
               )}
               {activeTab === "거래완료" && (
                 <Link to="/review">

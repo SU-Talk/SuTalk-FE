@@ -16,7 +16,6 @@ const Home = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q")?.toLowerCase() || "";
 
-  // 텍스트 하이라이트
   const highlightText = (text) => {
     if (!searchQuery || !text) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
@@ -25,7 +24,6 @@ const Home = () => {
     );
   };
 
-  // 게시글 가져오는 함수
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -40,20 +38,14 @@ const Home = () => {
     setLoading(false);
   };
 
-  // 처음 로딩 + 주기적 새로고침
   useEffect(() => {
     fetchPosts();
-
-    const intervalId = setInterval(() => {
-      fetchPosts(); // 10초마다 자동으로 새로운 데이터 요청
-    }, 10000); // 10000ms = 10초
-
-    return () => clearInterval(intervalId); // cleanup
+    const intervalId = setInterval(() => fetchPosts(), 10000);
+    return () => clearInterval(intervalId);
   }, []);
 
-  // 카테고리 & 검색 필터
   useEffect(() => {
-    let result = [...posts];
+    let result = posts.filter((post) => post.status !== "거래완료"); // ✅ 거래완료 제외
 
     if (selectedCategory !== "전체") {
       result = result.filter(
@@ -74,7 +66,6 @@ const Home = () => {
     setFilteredPosts(result);
   }, [posts, selectedCategory, searchQuery]);
 
-  // 무한 스크롤 (page state는 현재 사용되지 않지만 유지)
   useEffect(() => {
     const handleScroll = () => {
       if (
