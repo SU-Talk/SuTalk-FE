@@ -23,6 +23,7 @@ import PostDetailPage from "./components/PostDetail/PostDetail";
 import PostEditPage from "./components/Post/PostEdit";
 import Reviewpage from "./components/Review/Review";
 import ReportPage from "./components/Report/Report";
+import SellerProfile from "./components/Profile/SellerProfile";
 
 const LoadingWrapper = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const AnimatedRoutes = () => {
       >
         <div ref={nodeRef}>
           <Routes location={location}>
+           <Route path="/profile/seller/:sellerId" element={<SellerProfile />} />
             <Route path="/" element={<LoadingWrapper />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/chat/:chatRoomId" element={<ChatRoom />} />

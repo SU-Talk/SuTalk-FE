@@ -40,11 +40,7 @@ const PostDetail = () => {
       const transactionRes = await fetch(`/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          buyerId,
-          sellerId,
-          itemId: postId,
-        }),
+        body: JSON.stringify({ buyerId, sellerId, itemId: postId }),
       });
 
       if (!transactionRes.ok) throw new Error("거래 생성 실패");
@@ -64,7 +60,11 @@ const PostDetail = () => {
       if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
 
       const chatRoomData = await chatRoomRes.json();
-      const chatRoomId = chatRoomData.chatroomId || chatRoomData.chatRoomId || chatRoomData.chatroomid;
+      const chatRoomId =
+        chatRoomData.chatroomId ||
+        chatRoomData.chatRoomId ||
+        chatRoomData.chatroomid;
+
       if (!chatRoomId) throw new Error("chatRoomId가 응답에 없습니다!");
 
       navigate(`/chat/${chatRoomId}`);
@@ -79,26 +79,49 @@ const PostDetail = () => {
 
   const images =
     post?.itemImages?.map((path) => `http://localhost:8080${path}`) || [
-      post?.thumbnail ? `http://localhost:8080${post.thumbnail}` : "/assets/default-image.png",
+      post?.thumbnail
+        ? `http://localhost:8080${post.thumbnail}`
+        : "/assets/default-image.png",
     ];
+
+  const formattedDate = new Date(Number(post.regdate)).toLocaleDateString("ko-KR");
 
   return (
     <div className="post-detail-container">
       <TopBar />
-      <img src={images[currentImageIndex]} alt="상품 이미지" className="slider-image" />
+      <img
+        src={images[currentImageIndex]}
+        alt="상품 이미지"
+        className="slider-image"
+      />
       <div className="comment-container">
         <h1>{post.title}</h1>
         <div className="category-tag">{post.category}</div>
-        <p>{post.description}</p>
-        <p>장소: {post.meetLocation}</p>
-        <p>게시일: {post.time}</p>
+
+        <div className="seller-info">
+          <span>판매자:</span>
+          <span
+            className="seller-name"
+            onClick={() => navigate(`/profile/seller/${post.sellerId}`)}
+          >
+            {post.sellerName || `test-user-${post.sellerId?.slice(-3)}`}
+          </span>
+        </div>
+
+        <p className="description-text">{post.description}</p>
+
+        <div className="info-row">
+          <span>📍 {post.meetLocation}</span>
+          <span>🕒 {formattedDate}</span>
+        </div>
 
         <button className="chat-button" onClick={handleStartChat}>
           💬 채팅하기
         </button>
       </div>
 
-      <BottomBar postId={postId} price={post.price} />
+      <BottomBar postId={postId} price={post.price} sellerId={post.sellerId} />
+
     </div>
   );
 };

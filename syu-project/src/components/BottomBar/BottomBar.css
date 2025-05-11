@@ -43,17 +43,25 @@
   margin-left: 10px;
 }
 
-.chat-button {
+/* ✅ 채팅 버튼 스타일 조정 */
+.bottom-chat-button {
   background-color: #2670ff;
   color: #ffffff;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 18px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
+.bottom-chat-button:hover {
+  background-color: #1e5add;
+}
+
+
+/* 하트 애니메이션 */
 @keyframes pop {
   0% { transform: scale(1); }
   50% { transform: scale(1.3); }
