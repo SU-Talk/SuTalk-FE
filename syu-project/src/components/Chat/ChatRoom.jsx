@@ -4,6 +4,7 @@ import { Client } from "@stomp/stompjs";
 import axios from "axios";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
+import { FaBars, FaArrowLeft } from "react-icons/fa";
 import "./Chat.css";
 
 const ChatRoom = () => {
@@ -16,13 +17,28 @@ const ChatRoom = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [itemStatus, setItemStatus] = useState("");
   const [transactionId, setTransactionId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const itemId = location.state?.itemId;
-  const chatSellerId = location.state?.sellerId;
+  const [itemId, setItemId] = useState(location.state?.itemId || null);
+  const [chatSellerId, setChatSellerId] = useState(location.state?.sellerId || null);
+  const [buyerId, setBuyerId] = useState(location.state?.buyerId || null);
+
   const senderId = localStorage.getItem("senderId");
   const isBuyer = senderId && senderId !== chatSellerId;
 
-  // 거래 ID 조회
+  // ✅ fallback: chatRoomId로 itemId, sellerId, buyerId 불러오기
+  useEffect(() => {
+    if (!itemId || !chatSellerId || !buyerId) {
+      axios.get(`/api/chat-rooms/${chatRoomId}`)
+        .then(res => {
+          setItemId(res.data.itemId);
+          setChatSellerId(res.data.sellerId);
+          setBuyerId(res.data.buyerId);
+        })
+        .catch(err => console.error("❌ 채팅방 정보 조회 실패:", err));
+    }
+  }, [chatRoomId, itemId, chatSellerId, buyerId]);
+
   useEffect(() => {
     if (itemId && senderId) {
       axios
@@ -87,13 +103,58 @@ const ChatRoom = () => {
     });
   };
 
+  const handleLeaveChat = async () => {
+    if (window.confirm("정말 채팅방을 나가시겠습니까?")) {
+      try {
+        await axios.delete(`/api/chat-rooms/${chatRoomId}`);
+        alert("채팅방이 삭제되었습니다.");
+        navigate("/chatlist");
+      } catch (err) {
+        console.error("❌ 채팅방 삭제 실패:", err);
+        alert("채팅방 삭제에 실패했습니다.");
+      }
+    }
+  };
+
+  const handleViewProfile = () => {
+    const opponentId = senderId === chatSellerId ? buyerId : chatSellerId;
+    if (!opponentId) {
+      alert("상대방 정보를 불러오지 못했습니다.");
+      return;
+    }
+    navigate(`/profile/seller/${opponentId}`);
+  };
+
+  const handleBack = () => {
+    navigate("/chatlist");
+  };
+
   return (
     <div className="chat-room">
       <header className="chat-header">
-        <h2>💬 채팅방 #{chatRoomId}</h2>
-        {!isCompleted && senderId === chatSellerId && (
-          <button onClick={handleCompleteDeal} className="complete-button">거래 완료</button>
-        )}
+        <div className="chat-header-left">
+          <button className="back-button" onClick={handleBack}>
+            <FaArrowLeft />
+          </button>
+          <div className="chat-header-title">채팅방 #{chatRoomId}</div>
+        </div>
+
+        <div className="chat-header-right">
+          {!isCompleted && senderId === chatSellerId && (
+            <button onClick={handleCompleteDeal} className="complete-button">
+              거래 완료
+            </button>
+          )}
+          <button className="menu-icon-button" onClick={() => setMenuOpen(!menuOpen)}>
+            <FaBars />
+          </button>
+          {menuOpen && (
+            <div className="chat-menu-dropdown">
+              <button onClick={handleViewProfile}>👤 상대방 프로필</button>
+              <button onClick={handleLeaveChat}>🚪 채팅방 나가기</button>
+            </div>
+          )}
+        </div>
       </header>
 
       <ChatBody messages={messages} />

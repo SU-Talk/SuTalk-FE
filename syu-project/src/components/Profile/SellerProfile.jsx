@@ -25,7 +25,8 @@ const SellerProfile = () => {
 
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`/api/items/mine?userId=${sellerId}`);
+        // ✅ 새 API로 변경
+        const response = await axios.get(`/api/items/by-seller?sellerId=${sellerId}`);
         setPosts(response.data);
       } catch (error) {
         console.error("❌ 게시글 조회 실패:", error);
