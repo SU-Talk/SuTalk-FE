@@ -35,14 +35,22 @@ const SalesHistory = () => {
   };
 
   const handleDelete = async (itemid) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
-    try {
-      await fetch(`/api/items/${itemid}`, { method: "DELETE" });
-      fetchSalesData(); // 갱신
-    } catch (error) {
-      console.error("삭제 실패:", error);
-    }
-  };
+  if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+    const response = await fetch(`/api/items/${itemid}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("삭제 요청 실패");
+
+    alert("삭제되었습니다.");
+    fetchSalesData(); // 갱신
+  } catch (error) {
+    console.error("❌ 삭제 실패:", error);
+    alert("삭제에 실패했습니다. 다시 시도해주세요.");
+  }
+};
 
   const handleStatusChange = async (itemid, newStatus) => {
     try {
