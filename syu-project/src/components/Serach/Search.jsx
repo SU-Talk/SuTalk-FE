@@ -7,66 +7,87 @@ import { faChevronLeft, faClock } from "@fortawesome/free-solid-svg-icons";
 const SearchTable = () => {
   const [history, setHistory] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [suggestions, setSuggestions] = useState([]); // 연관 검색어 상태
+  const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
 
-  // 검색 기록 불러오기
+  //DB에서 검색 기록 불러오기
   useEffect(() => {
-    const storedHistory = localStorage.getItem("searchHistory");
-    if (storedHistory) {
-      setHistory(JSON.parse(storedHistory));
-    }
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch("/api/search/history");
+        const data = await res.json();
+        setHistory(data.reverse()); // 최근 것이 위로 오도록 정렬
+      } catch (error) {
+        console.error("검색 기록 불러오기 실패:", error);
+      }
+    };
+    fetchHistory();
   }, []);
 
-  // 검색어 입력 시 연관 검색어 필터링
+  //연관 검색어 불러오기
   useEffect(() => {
-    if (!searchInput.trim()) {
-      setSuggestions([]);
-      return;
+    const fetchSuggestions = async () => {
+      if (!searchInput.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/search/suggest?keyword=${encodeURIComponent(searchInput)}`);
+        const data = await res.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("연관 검색어 불러오기 실패:", error);
+      }
+    };
+
+    fetchSuggestions();
+  }, [searchInput]);
+
+  // 검색 실행
+  const handleSearch = async () => {
+    const trimmed = searchInput.trim();
+    if (!trimmed) return;
+
+    try {
+      await fetch("/api/search/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword: trimmed }),
+      });
+      setHistory((prev) => [{ query: trimmed }, ...prev]);
+    } catch (error) {
+      console.error("검색 기록 저장 실패:", error);
     }
 
-    const lowerInput = searchInput.toLowerCase();
-    const filtered = history
-      .map((item) => item.query)
-      .filter((query, index, self) =>
-        query.toLowerCase().includes(lowerInput) && self.indexOf(query) === index
-      );
-    setSuggestions(filtered);
-  }, [searchInput, history]);
-
-  // ✅ 검색 실행
-  const handleSearch = () => {
-    if (!searchInput.trim()) return;
-
-    const newHistory = {
-      id: Date.now(),
-      query: searchInput.trim(),
-    };
-    const updatedHistory = [...history, newHistory];
-    setHistory(updatedHistory);
-    localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
-
-    navigate(`/home?q=${encodeURIComponent(searchInput.trim())}`);
+    navigate(`/home?q=${encodeURIComponent(trimmed)}`);
     setSearchInput("");
     setSuggestions([]);
   };
 
   // 특정 검색 기록 삭제
-  const handleDelete = (id) => {
-    const updated = history.filter((item) => item.id !== id);
-    setHistory(updated);
-    localStorage.setItem("searchHistory", JSON.stringify(updated));
+  const handleDelete = async (keyword) => {
+    try {
+      await fetch(`/api/search/history/${encodeURIComponent(keyword)}`, { method: "DELETE" });
+      setHistory((prev) => prev.filter((item) => item !== keyword && item.query !== keyword));
+    } catch (error) {
+      console.error("검색 기록 삭제 실패:", error);
+    }
   };
 
-  // 모든 기록 삭제
-  const handleDeleteAll = () => {
-    setHistory([]);
-    localStorage.removeItem("searchHistory");
+  // 모든 검색 기록 삭제
+  const handleDeleteAll = async () => {
+    try {
+      await fetch("/api/search/history", { method: "DELETE" });
+      setHistory([]);
+    } catch (error) {
+      console.error("전체 검색 기록 삭제 실패:", error);
+    }
   };
 
   return (
     <div className="search-container">
-      {/* 상단 헤더 */}
+      {/* 상단 */}
       <div className="header">
         <Link to="/home">
           <button className="search-back-button">
@@ -88,15 +109,15 @@ const SearchTable = () => {
       {suggestions.length > 0 && (
         <div className="suggestions-container">
           <ul>
-            {suggestions.map((suggestion, index) => (
+            {suggestions.map((s, i) => (
               <li
-                key={index}
+                key={i}
                 className="suggestion-item"
                 onClick={() => {
-                  setSearchInput(suggestion);
-                  navigate(`/home?q=${encodeURIComponent(suggestion)}`);
+                  setSearchInput(s);
+                  navigate(`/home?q=${encodeURIComponent(s)}`);
                 }}>
-                {suggestion}
+                {s}
               </li>
             ))}
           </ul>
@@ -115,23 +136,21 @@ const SearchTable = () => {
         </div>
         <ul>
           {history.length > 0 ? (
-            history.map((item) => (
-              <li key={item.id} className="history-item">
-                <FontAwesomeIcon icon={faClock} className="search-marker-image" />
-                <span
-                  className="history-query"
-                  onClick={() =>
-                    navigate(`/home?q=${encodeURIComponent(item.query)}`)
-                  }>
-                  {item.query}
-                </span>
-                <button
-                  className="Sdelete-button"
-                  onClick={() => handleDelete(item.id)}>
-                  ×
-                </button>
-              </li>
-            ))
+            history.map((item, index) => {
+              const keyword = typeof item === "string" ? item : item.query;
+              return (
+                <li key={index} className="history-item">
+                  <FontAwesomeIcon icon={faClock} className="search-marker-image" />
+                  <span
+                    className="history-query"
+                    onClick={() => navigate(`/home?q=${encodeURIComponent(keyword)}`)}
+                  >
+                    {keyword}
+                  </span>
+                  <button className="Sdelete-button" onClick={() => handleDelete(keyword)}>×</button>
+                </li>
+              );
+            })
           ) : (
             <li>검색 기록이 없습니다.</li>
           )}
