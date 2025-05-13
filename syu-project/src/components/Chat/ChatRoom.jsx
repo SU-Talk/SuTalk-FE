@@ -26,32 +26,49 @@ const ChatRoom = () => {
   const senderId = localStorage.getItem("senderId");
   const isBuyer = senderId && senderId !== chatSellerId;
 
-  // ✅ fallback: chatRoomId로 itemId, sellerId, buyerId 불러오기
+  // ✅ 1. 채팅방 정보 fallback 조회
   useEffect(() => {
-    if (!itemId || !chatSellerId || !buyerId) {
-      axios.get(`/api/chat-rooms/${chatRoomId}`)
-        .then(res => {
+    const fetchChatRoomDetails = async () => {
+      try {
+        if (!itemId || !chatSellerId || !buyerId) {
+          const res = await axios.get(`/api/chat-rooms/${chatRoomId}`);
           setItemId(res.data.itemId);
           setChatSellerId(res.data.sellerId);
           setBuyerId(res.data.buyerId);
-        })
-        .catch(err => console.error("❌ 채팅방 정보 조회 실패:", err));
-    }
+        }
+      } catch (err) {
+        console.error("❌ 채팅방 정보 조회 실패:", err);
+      }
+    };
+    fetchChatRoomDetails();
   }, [chatRoomId, itemId, chatSellerId, buyerId]);
 
+  // ✅ 2. 거래 ID 조회
   useEffect(() => {
-    if (itemId && senderId) {
-      axios
-        .get(`/api/transactions/item/${itemId}/user/${senderId}`)
-        .then(res => setTransactionId(res.data.transactionId))
-        .catch(err => console.error("❌ 거래 ID 조회 실패:", err));
-    }
-  }, [itemId, senderId]);
+    const fetchTransactionId = async () => {
+      if (!itemId || !senderId || !chatSellerId || !buyerId) return;
+      try {
+        const res = await axios.get(`/api/transactions/item/${itemId}/user/${senderId}`);
+        setTransactionId(res.data.transactionId);
+        console.log("✅ 거래 ID:", res.data.transactionId);
+      } catch (err) {
+        console.error("❌ 거래 ID 조회 실패:", err.response || err);
+      }
+    };
+    fetchTransactionId();
+  }, [itemId, senderId, chatSellerId, buyerId]);
 
+  // ✅ 3. 채팅 메시지 조회 + WebSocket 연결
   useEffect(() => {
-    axios.get(`/api/chat-messages/${chatRoomId}`)
-      .then(res => setMessages(res.data))
-      .catch(err => console.error("❌ 메시지 조회 실패:", err));
+    const fetchMessages = async () => {
+      try {
+        const res = await axios.get(`/api/chat-messages/${chatRoomId}`);
+        setMessages(res.data);
+      } catch (err) {
+        console.error("❌ 메시지 조회 실패:", err);
+      }
+    };
+    fetchMessages();
 
     const client = new Client({
       brokerURL: "ws://localhost:8080/ws",
@@ -63,21 +80,30 @@ const ChatRoom = () => {
         });
         setStompClient(client);
       },
-      onStompError: frame => console.error("❌ STOMP 오류:", frame),
+      onStompError: (frame) => {
+        console.error("❌ STOMP 오류:", frame);
+      }
     });
 
     client.activate();
     return () => client.deactivate();
   }, [chatRoomId]);
 
+  // ✅ 4. 아이템 상태 조회 (거래 완료 여부 확인)
   useEffect(() => {
-    if (!itemId) return;
-    axios.get(`/api/items/${itemId}`)
-      .then(res => {
+    const fetchItemStatus = async () => {
+      if (!itemId) return;
+      try {
+        const res = await axios.get(`/api/items/${itemId}`);
         setItemStatus(res.data.status);
-        if (res.data.status === "거래완료") setIsCompleted(true);
-      })
-      .catch(err => console.error("❌ 아이템 상태 조회 실패:", err));
+        if (res.data.status === "거래완료") {
+          setIsCompleted(true);
+        }
+      } catch (err) {
+        console.error("❌ 아이템 상태 조회 실패:", err);
+      }
+    };
+    fetchItemStatus();
   }, [itemId]);
 
   const handleCompleteDeal = async () => {
@@ -92,7 +118,11 @@ const ChatRoom = () => {
   };
 
   const handleReviewWrite = () => {
-    if (!transactionId) return alert("리뷰 대상 정보가 없습니다.");
+    if (!transactionId) {
+      console.warn("🚫 거래 ID 없음:", { itemId, senderId, transactionId });
+      return alert("리뷰 대상 정보가 없습니다.");
+    }
+
     navigate("/review", {
       state: {
         itemId,
@@ -134,7 +164,7 @@ const ChatRoom = () => {
       <header className="chat-header">
         <div className="chat-header-left">
           <button className="back-button" onClick={handleBack}>
-            <FaArrowLeft />
+            <FaArrowLeft className="back-icon" />
           </button>
           <div className="chat-header-title">채팅방 #{chatRoomId}</div>
         </div>

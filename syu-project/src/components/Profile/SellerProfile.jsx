@@ -1,17 +1,29 @@
 // components/Profile/SellerProfile.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import SellerReviewList from "../Review/SellerReviewList";
 import "./profile.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { FaBars, FaArrowLeft } from "react-icons/fa";
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
 
   const reporterId = localStorage.getItem("senderId");
+
+  const handleGoBack = () => {
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else {
+      navigate(-1);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,7 +37,6 @@ const SellerProfile = () => {
 
     const fetchPosts = async () => {
       try {
-        // ✅ 새 API로 변경
         const response = await axios.get(`/api/items/by-seller?sellerId=${sellerId}`);
         setPosts(response.data);
       } catch (error) {
@@ -41,9 +52,14 @@ const SellerProfile = () => {
 
   return (
     <div className="profile-container">
-      <header className="profile-header">
-        <h2>{profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필</h2>
-      </header>
+      {/* ✅ 상단 고정 헤더 */}
+      <div className="profile-topbar">
+          <button className="back-button" onClick={handleGoBack}>
+             <FaArrowLeft className="back-icon" />
+          </button>
+        <h2 className="topbar-title">{profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필</h2>
+      </div>
+
 
       <div className="profile-info">
         <div className="profile-avatar">👤</div>
@@ -53,7 +69,6 @@ const SellerProfile = () => {
           {profile.reviewCount ?? 0}개
         </p>
 
-        {/* 🚨 신고 버튼을 프로필 정보 아래로 이동 */}
         <button
           className="edit-profile-button"
           onClick={() =>
@@ -68,7 +83,6 @@ const SellerProfile = () => {
 
       {/* 받은 후기 리스트 */}
       <div className="profile-reviews">
-        <h4>📌 받은 후기</h4>
         <SellerReviewList sellerId={sellerId} />
       </div>
 
