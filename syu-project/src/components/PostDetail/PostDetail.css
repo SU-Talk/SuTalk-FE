@@ -12,12 +12,81 @@
   background-color: #fff;
 }
 
-/* 이미지 */
-.slider-image {
+.image-slider {
+  position: relative;
   width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-bottom: 1px solid #eee;
+  height: 250px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.slider-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  margin: auto; /* ✅ 수직 수평 정중앙 */
+  position: absolute;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  z-index: 1;
+}
+
+
+.fade-in {
+  opacity: 1;
+  z-index: 2;
+}
+
+.fade-out {
+  opacity: 0;
+  z-index: 1;
+}
+
+/* 좌우 슬라이더 버튼 */
+.slider-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  font-size: 20px;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.slider-button.left {
+  left: 10px;
+}
+
+.slider-button.right {
+  right: 10px;
+}
+
+/* ●●● 슬라이드 인디케이터 */
+.indicator-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: #ccc;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dot.active {
+  background-color: #2670ff;
 }
 
 /* 콘텐츠 영역 */

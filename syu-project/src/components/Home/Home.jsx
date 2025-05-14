@@ -5,14 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
 import TopBar from "../TopBar/TopBar";
-import CategoryFilter from "../CategoryFilter/CategoryFilter";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [sortOrder, setSortOrder] = useState("최신순");
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q")?.toLowerCase() || "";
 
@@ -30,7 +29,6 @@ const Home = () => {
       const response = await fetch("/api/items");
       if (!response.ok) throw new Error("네트워크 오류");
       const data = await response.json();
-      console.log("✅ 받아온 데이터:", data);
       setPosts(data);
     } catch (error) {
       console.error("❌ 데이터 가져오기 실패:", error);
@@ -45,7 +43,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    let result = posts.filter((post) => post.status !== "거래완료"); // ✅ 거래완료 제외
+    let result = posts.filter((post) => post.status !== "거래완료");
 
     if (selectedCategory !== "전체") {
       result = result.filter(
@@ -63,41 +61,54 @@ const Home = () => {
       );
     }
 
-    setFilteredPosts(result);
-  }, [posts, selectedCategory, searchQuery]);
+    if (sortOrder === "최신순") {
+      result.sort((a, b) => b.regdate - a.regdate);
+    } else if (sortOrder === "가격↑") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "가격↓") {
+      result.sort((a, b) => b.price - a.price);
+    }
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-          document.documentElement.scrollHeight - 100 &&
-        !loading
-      ) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading]);
+    setFilteredPosts(result);
+  }, [posts, selectedCategory, searchQuery, sortOrder]);
+
+  const categories = [
+    "전체",
+    "전자제품",
+    "가구",
+    "의류",
+    "도서",
+    "생활용품",
+    "스포츠/레저",
+    "기타",
+  ];
 
   return (
     <div className="home-Container">
       <TopBar />
-      <div className="category-Container">
-        <CategoryFilter
-          categories={[
-            "전체",
-            "전자제품",
-            "가구",
-            "의류",
-            "도서",
-            "생활용품",
-            "스포츠/레저",
-            "기타",
-          ]}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+
+      {/* ✅ 카테고리 + 정렬 버튼 한 줄에 스크롤 */}
+      <div className="filter-scroll-row">
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={`filter-button ${
+              selectedCategory === category ? "active" : ""
+            }`}
+            onClick={() => setSelectedCategory(category)}
+          >
+            {category}
+          </button>
+        ))}
+        {["최신순", "가격↑", "가격↓"].map((option) => (
+          <button
+            key={option}
+            className={`filter-button ${sortOrder === option ? "active" : ""}`}
+            onClick={() => setSortOrder(option)}
+          >
+            {option}
+          </button>
+        ))}
       </div>
 
       <div className="home-Posts">
@@ -116,14 +127,17 @@ const Home = () => {
               <img src={thumbnail} alt={post.title || "게시물"} />
               <div className="home-PostDetails">
                 <h3>{highlightText(post.title || "제목 없음")}</h3>
-                <div className="post-metadata">
-                  <p>{post.regdate || "시간 없음"}</p>
-                  <p>
-                    {typeof post.price === "number"
-                      ? post.price.toLocaleString() + "원"
-                      : "가격 없음"}
-                  </p>
+                <div className="post-meta">
+                  <span className="post-author">작성자: {post.sellerId}</span>
+                  <span className="post-date">
+                    {new Date(Number(post.regdate)).toLocaleDateString("ko-KR")}
+                  </span>
                 </div>
+                <p className="post-price">
+                  {typeof post.price === "number"
+                    ? `가격: ${post.price.toLocaleString()}원`
+                    : "가격 없음"}
+                </p>
                 <p className="post-comment">
                   {highlightText(post.description || "설명 없음")}
                 </p>

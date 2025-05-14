@@ -5,28 +5,37 @@ import Nav from "../Nav/Nav";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(false);
   const senderId = localStorage.getItem("senderId");
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const res = await fetch(`/api/chat-rooms?userId=${senderId}`);
-        if (!res.ok) throw new Error("채팅 목록 조회 실패");
-        const data = await res.json();
-        setChats(data);
-      } catch (err) {
-        console.error("❌ 채팅 목록 오류:", err);
-      }
-    };
+  const fetchChats = async () => {
+    if (!senderId) return;
 
-    if (senderId) fetchChats();
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/chat-rooms?userId=${senderId}`);
+      if (!res.ok) throw new Error("채팅 목록 조회 실패");
+      const data = await res.json();
+      setChats(data);
+    } catch (err) {
+      console.error("❌ 채팅 목록 오류:", err);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchChats(); // 초기 로딩
+    const intervalId = setInterval(fetchChats, 10000); // 🔁 10초마다 갱신
+    return () => clearInterval(intervalId); // 언마운트 시 정리
   }, [senderId]);
 
   return (
     <div className="chat-list-container">
       <header className="chat-header"><h3>채팅</h3></header>
+
       <div className="chat-items">
-        {chats.length === 0 ? (
+        {loading && <p style={{ padding: "1rem" }}>불러오는 중...</p>}
+        {!loading && chats.length === 0 ? (
           <p style={{ padding: "1rem" }}>채팅방이 없습니다</p>
         ) : (
           chats.map((chat, idx) => (
@@ -52,6 +61,7 @@ const ChatList = () => {
           ))
         )}
       </div>
+
       <Nav />
     </div>
   );

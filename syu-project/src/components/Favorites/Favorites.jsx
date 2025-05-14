@@ -12,17 +12,18 @@ const Favorites = () => {
   const senderId = localStorage.getItem("senderId");
 
   useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        const response = await fetch(`/api/likes/my?userId=${senderId}`);
-        if (!response.ok) throw new Error("관심 목록 불러오기 실패");
-        const data = await response.json();
-        setFavoriteItems(data); // 서버에서 받은 Item 리스트
-      } catch (error) {
-        console.error("❌ 관심 목록 조회 오류:", error);
-        setError(true);
-      }
-    };
+  const fetchFavorites = async () => {
+    try {
+      const response = await fetch(`/api/likes/my?userId=${senderId}`);
+      const data = await response.json();
+      console.log("🔥 받아온 데이터", data); // 여기서 post.thumbnail이 실제로 있는지 확인
+      setFavoriteItems(data);
+    } catch (error) {
+      console.error("❌ 관심 목록 조회 오류:", error);
+      setError(true);
+    }
+  };
+
 
     if (senderId) {
       fetchFavorites();
@@ -56,8 +57,8 @@ const Favorites = () => {
               <div className="favorite-thumbnail">
                 <img
                   src={
-                    post.thumbnail
-                      ? `http://localhost:8080${post.thumbnail}`
+                    post.itemImages?.length > 0
+                      ? `http://localhost:8080${post.itemImages[0]}`
                       : "/assets/default-image.png"
                   }
                   alt={post.title}
@@ -73,6 +74,7 @@ const Favorites = () => {
                 </div>
               </div>
             </Link>
+
           ))
         ) : (
           <p className="no-favorites">관심 목록이 비어 있습니다.</p>

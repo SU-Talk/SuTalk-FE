@@ -71,17 +71,56 @@
   font-size: 14px;
 }
 
-.actions button,
-.review-button,
-.status-buttons button {
-  background-color: white;
-  border: 1px solid #276fff;
-  margin: 5px 5px 5px 0;
-  padding: 5px 10px;
-  font-size: 13px;
+.actions button {
+  background-color: #f0f4ff;
+  border: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 6px;
+}
+
+.actions button:hover {
+  background-color: #d6e4ff;
 }
 
 .status-buttons {
-  margin-top: 5px;
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.status-buttons button {
+  background-color: #ffffff;
+  border: 1.5px solid #2670ff;
+  color: #2670ff;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.status-buttons button:hover {
+  background-color: #2670ff;
+  color: white;
+}
+
+.review-button {
+  background-color: #fff0f5;
+  border: 1px solid #ff69b4;
+  color: #ff69b4;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.review-button:hover {
+  background-color: #ffe4ec;
 }
