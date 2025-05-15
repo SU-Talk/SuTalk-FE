@@ -24,17 +24,27 @@ import PostEditPage from "./components/Post/PostEdit";
 import Reviewpage from "./components/Review/Review";
 import ReportPage from "./components/Report/Report";
 import SellerProfile from "./components/Profile/SellerProfile";
+import UserEnter from "./components/UserEnter/UserEnter";
+import Login from "./components/Login/Login"; 
 
 const LoadingWrapper = () => {
   const navigate = useNavigate();
+
   useEffect(() => {
+    // ✅ senderId 초기화 후 → 로그인 페이지로 이동
+    localStorage.removeItem("senderId");
+
     const timer = setTimeout(() => {
-      navigate("/home", { replace: true });
+      navigate("/login", { replace: true }); // ✅ 수정됨: /enter → /login
     }, 3000);
+
     return () => clearTimeout(timer);
   }, [navigate]);
+
   return <LoadingPage />;
 };
+
+
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -52,8 +62,9 @@ const AnimatedRoutes = () => {
       >
         <div ref={nodeRef}>
           <Routes location={location}>
-           <Route path="/profile/seller/:sellerId" element={<SellerProfile />} />
             <Route path="/" element={<LoadingWrapper />} />
+            <Route path="/login" element={<Login />} /> {/* ✅ 로그인 라우트 추가 */}
+            <Route path="/enter" element={<UserEnter />} /> {/* ✅ 회원가입 */}
             <Route path="/home" element={<HomePage />} />
             <Route path="/chat/:chatRoomId" element={<ChatRoom />} />
             <Route path="/chatlist" element={<ChatListPage />} />
@@ -67,6 +78,7 @@ const AnimatedRoutes = () => {
             <Route path="/post" element={<PostEditPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
             <Route path="/post/:postId/edit" element={<PostEditPage />} />
+            <Route path="/profile/seller/:sellerId" element={<SellerProfile />} />
           </Routes>
         </div>
       </CSSTransition>

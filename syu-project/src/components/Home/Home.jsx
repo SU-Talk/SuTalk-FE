@@ -37,6 +37,15 @@ const Home = () => {
   };
 
   useEffect(() => {
+  const senderId = localStorage.getItem("senderId");
+  if (!senderId) {
+    window.location.href = "/enter";
+  }
+}, []);
+
+
+
+  useEffect(() => {
     fetchPosts();
     const intervalId = setInterval(() => fetchPosts(), 10000);
     return () => clearInterval(intervalId);
