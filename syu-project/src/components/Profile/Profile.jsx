@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./profile.css";
+import "./Profile.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faReceipt, faUser } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
@@ -24,6 +24,7 @@ const Profile = ({ nickname }) => {
           <button className="edit-profile-button">프로필 수정</button>
         </Link>
       </div>
+      
 
       <div className="profile-menu">
         <div className="menu-item">
