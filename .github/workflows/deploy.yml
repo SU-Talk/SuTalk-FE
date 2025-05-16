@@ -10,9 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     defaults:
-        run:
-            working-directory: ./
-
+      run:
+        working-directory: ./syu-project
 
     steps:
       - name: Checkout Repository
@@ -38,7 +37,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-southeast-2
-          SOURCE_DIR: dist
+          SOURCE_DIR: syu-project/dist
+
 
       - name: Invalidate CloudFront cache
         run: |

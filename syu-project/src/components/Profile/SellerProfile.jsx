@@ -1,12 +1,9 @@
-// components/Profile/SellerProfile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosInstance"; // ✅ 변경됨
 import SellerReviewList from "../Review/SellerReviewList";
-import "./profile.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
-import { FaBars, FaArrowLeft } from "react-icons/fa";
+import "./Profile.css";
+import { FaArrowLeft } from "react-icons/fa";
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
@@ -14,7 +11,6 @@ const SellerProfile = () => {
   const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
-
   const reporterId = localStorage.getItem("senderId");
 
   const handleGoBack = () => {
@@ -52,14 +48,14 @@ const SellerProfile = () => {
 
   return (
     <div className="profile-container">
-      {/* ✅ 상단 고정 헤더 */}
       <div className="profile-topbar">
-          <button className="back-button" onClick={handleGoBack}>
-             <FaArrowLeft className="back-icon" />
-          </button>
-        <h2 className="topbar-title">{profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필</h2>
+        <button className="back-button" onClick={handleGoBack}>
+          <FaArrowLeft className="back-icon" />
+        </button>
+        <h2 className="topbar-title">
+          {profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필
+        </h2>
       </div>
-
 
       <div className="profile-info">
         <div className="profile-avatar">👤</div>
@@ -68,7 +64,6 @@ const SellerProfile = () => {
           후기 평균 ⭐ {profile.averageRating?.toFixed(1) ?? "0.0"} / 후기{" "}
           {profile.reviewCount ?? 0}개
         </p>
-
         <button
           className="edit-profile-button"
           onClick={() =>
@@ -81,12 +76,10 @@ const SellerProfile = () => {
         </button>
       </div>
 
-      {/* 받은 후기 리스트 */}
       <div className="profile-reviews">
         <SellerReviewList sellerId={sellerId} />
       </div>
 
-      {/* 작성한 게시글 */}
       <div className="profile-posts">
         <h4>🛒 작성한 게시글</h4>
         {posts.map((post) => (

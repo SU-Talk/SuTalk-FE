@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosInstance"; // ✅ 변경됨
 import "./Report.css";
 
 const Report = () => {
-  const [selectedReason, setSelectedReason] = useState(""); // 선택된 신고 사유
-  const [additionalText, setAdditionalText] = useState(""); // 기타 추가 입력
+  const [selectedReason, setSelectedReason] = useState("");
+  const [additionalText, setAdditionalText] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 📦 신고 대상 정보 (Review.jsx → navigate로 전달됨)
   const { reporterId, reportedId, itemId } = location.state || {};
 
   const handleSubmit = async () => {
@@ -18,16 +17,17 @@ const Report = () => {
       return;
     }
 
-    const reason = selectedReason === "기타 부적절한 행위"
-      ? `${selectedReason}: ${additionalText}`
-      : selectedReason;
+    const reason =
+      selectedReason === "기타 부적절한 행위"
+        ? `${selectedReason}: ${additionalText}`
+        : selectedReason;
 
     try {
       await axios.post("/api/reports", {
         reporterId,
         reportedId,
         itemId,
-        reason
+        reason,
       });
 
       alert("신고가 접수되었습니다.");
@@ -50,42 +50,19 @@ const Report = () => {
       <div className="report-content">
         <p>신고하는 사유를 선택해주세요.</p>
         <form>
-          <label>
-            <input
-              type="radio"
-              name="reason"
-              value="사기"
-              onChange={(e) => setSelectedReason(e.target.value)}
-            />
-            사기
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="reason"
-              value="욕설"
-              onChange={(e) => setSelectedReason(e.target.value)}
-            />
-            욕설
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="reason"
-              value="거래 게시글이 아닙니다."
-              onChange={(e) => setSelectedReason(e.target.value)}
-            />
-            거래 게시글이 아닙니다.
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="reason"
-              value="기타 부적절한 행위"
-              onChange={(e) => setSelectedReason(e.target.value)}
-            />
-            기타 부적절한 행위
-          </label>
+          {["사기", "욕설", "거래 게시글이 아닙니다.", "기타 부적절한 행위"].map(
+            (reason) => (
+              <label key={reason}>
+                <input
+                  type="radio"
+                  name="reason"
+                  value={reason}
+                  onChange={(e) => setSelectedReason(e.target.value)}
+                />
+                {reason}
+              </label>
+            )
+          )}
           {selectedReason === "기타 부적절한 행위" && (
             <textarea
               placeholder="입력하세요."

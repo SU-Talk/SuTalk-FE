@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "../../api/axiosInstance";
 import "./UserEnter.css";
 
 const UserEnter = () => {
@@ -21,14 +22,7 @@ const UserEnter = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (!response.ok) throw new Error("회원가입 실패");
-
+      await axios.post("/api/users", form);
       localStorage.setItem("senderId", form.userid);
       navigate("/home");
     } catch (error) {
@@ -38,17 +32,11 @@ const UserEnter = () => {
 
   return (
     <div className="user-enter-container">
-      {/* ← 버튼만 있는 최소형 뒤로가기 */}
-        <button className="back-button" onClick={() => navigate("/login")}>
+      <button className="back-button" onClick={() => navigate("/login")}>
         &lt;
-        </button>
+      </button>
 
-
-      <img
-        src="/assets/default-image.png"
-        alt="logo"
-        className="logo-image"
-      />
+      <img src="/assets/default-image.png" alt="logo" className="logo-image" />
 
       <div className="title">
         <span className="brand">SU_Talk</span> 회원가입

@@ -26,7 +26,7 @@ const Home = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/items");
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/items`);
       if (!response.ok) throw new Error("네트워크 오류");
       const data = await response.json();
       setPosts(data);
@@ -124,7 +124,7 @@ const Home = () => {
         {filteredPosts.map((post) => {
           const thumbnail =
             post.itemImages && post.itemImages.length > 0
-              ? `http://localhost:8080${post.itemImages[0]}`
+              ? `${import.meta.env.VITE_API_BASE_URL}${post.itemImages[0]}`
               : "/assets/default-image.png";
 
           return (

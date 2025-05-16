@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Chat.css";
 import Nav from "../Nav/Nav";
+import axios from "../api/axiosInstance";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -13,10 +14,8 @@ const ChatList = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/chat-rooms?userId=${senderId}`);
-      if (!res.ok) throw new Error("채팅 목록 조회 실패");
-      const data = await res.json();
-      setChats(data);
+      const res = await axios.get(`/api/chat-rooms?userId=${senderId}`);
+      setChats(res.data);
     } catch (err) {
       console.error("❌ 채팅 목록 오류:", err);
     }
@@ -24,9 +23,9 @@ const ChatList = () => {
   };
 
   useEffect(() => {
-    fetchChats(); // 초기 로딩
-    const intervalId = setInterval(fetchChats, 10000); // 🔁 10초마다 갱신
-    return () => clearInterval(intervalId); // 언마운트 시 정리
+    fetchChats();
+    const intervalId = setInterval(fetchChats, 10000);
+    return () => clearInterval(intervalId);
   }, [senderId]);
 
   return (

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
 import TopBar from "../TopBar/TopBar";
 import BottomBar from "../BottomBar/BottomBar";
+import axios from "../api/axiosInstance";
 
 const PostDetail = () => {
   const { postId } = useParams();
@@ -15,10 +16,8 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`/api/items/${postId}`);
-        if (!response.ok) throw new Error("Failed to fetch post data");
-        const data = await response.json();
-        setPost(data);
+        const response = await axios.get(`/api/items/${postId}`);
+        setPost(response.data);
       } catch (error) {
         console.error("❌ 게시글 데이터 로딩 실패:", error);
       } finally {
@@ -38,33 +37,24 @@ const PostDetail = () => {
     }
 
     try {
-      const transactionRes = await fetch(`/api/transactions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ buyerId, sellerId, itemId: postId }),
+      const transactionRes = await axios.post(`/api/transactions`, {
+        buyerId,
+        sellerId,
+        itemId: postId,
       });
 
-      if (!transactionRes.ok) throw new Error("거래 생성 실패");
-      const transactionData = await transactionRes.json();
-      const transactionId = transactionData.transactionid;
+      const transactionId = transactionRes.data.transactionid;
 
-      const chatRoomRes = await fetch(`/api/chat-rooms`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemTransactionId: transactionId,
-          buyerId,
-          sellerId,
-        }),
+      const chatRoomRes = await axios.post(`/api/chat-rooms`, {
+        itemTransactionId: transactionId,
+        buyerId,
+        sellerId,
       });
 
-      if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
-
-      const chatRoomData = await chatRoomRes.json();
       const chatRoomId =
-        chatRoomData.chatroomId ||
-        chatRoomData.chatRoomId ||
-        chatRoomData.chatroomid;
+        chatRoomRes.data.chatroomId ||
+        chatRoomRes.data.chatRoomId ||
+        chatRoomRes.data.chatroomid;
 
       if (!chatRoomId) throw new Error("chatRoomId가 응답에 없습니다!");
 
@@ -77,7 +67,7 @@ const PostDetail = () => {
 
   const images =
     post?.itemImages?.length > 0
-      ? post.itemImages.map((path) => `http://localhost:8080${path}`)
+      ? post.itemImages.map((path) => `${import.meta.env.VITE_API_BASE_URL}${path}`)
       : ["/assets/default-image.png"];
 
   const changeImage = (nextIndex) => {

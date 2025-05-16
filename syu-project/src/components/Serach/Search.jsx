@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "../api/axiosInstance";
 import "./Search.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faClock, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -14,33 +15,32 @@ const Search = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`/api/search-history?userId=${userId}`);
-        if (!response.ok) throw new Error("불러오기 실패");
-        const data = await response.json();
+        const { data } = await axios.get(`/api/search-history`, {
+          params: { userId },
+        });
         const formatted = data.map((item, idx) => ({
           id: idx + 1,
           query: item,
         }));
         setHistory(formatted);
       } catch (error) {
-        console.error("검색 기록 오류:", error);
+        console.error("❌ 검색 기록 오류:", error);
         setHistory([]);
       }
     };
     if (userId) fetchHistory();
   }, [userId]);
 
-  // ✨ 이미지 포함 추천어 요청
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!searchInput.trim()) return;
       try {
-        const response = await fetch(`/api/items/suggest?keyword=${searchInput}`);
-        if (!response.ok) throw new Error("추천어 요청 실패");
-        const data = await response.json();
+        const { data } = await axios.get(`/api/items/suggest`, {
+          params: { keyword: searchInput },
+        });
         setSuggestions(data);
       } catch (error) {
-        console.error("추천어 오류:", error);
+        console.error("❌ 추천어 요청 실패:", error);
       }
     };
     const delay = setTimeout(fetchSuggestions, 300);
@@ -52,13 +52,12 @@ const Search = () => {
     if (!query) return;
 
     try {
-      await fetch("/api/search-history", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword: query, userId }),
+      await axios.post(`/api/search-history`, {
+        keyword: query,
+        userId,
       });
     } catch (error) {
-      console.error("검색어 저장 실패:", error);
+      console.error("❌ 검색어 저장 실패:", error);
     }
 
     navigate(`/home?q=${encodeURIComponent(query)}`);
@@ -68,21 +67,23 @@ const Search = () => {
 
   const handleDelete = async (keyword) => {
     try {
-      await fetch(`/api/search-history/${encodeURIComponent(keyword)}?userId=${userId}`, {
-        method: "DELETE",
+      await axios.delete(`/api/search-history/${encodeURIComponent(keyword)}`, {
+        params: { userId },
       });
       setHistory((prev) => prev.filter((item) => item.query !== keyword));
     } catch (error) {
-      console.error("삭제 실패:", error);
+      console.error("❌ 삭제 실패:", error);
     }
   };
 
   const handleDeleteAll = async () => {
     try {
-      await fetch(`/api/search-history?userId=${userId}`, { method: "DELETE" });
+      await axios.delete(`/api/search-history`, {
+        params: { userId },
+      });
       setHistory([]);
     } catch (error) {
-      console.error("전체 삭제 실패:", error);
+      console.error("❌ 전체 삭제 실패:", error);
     }
   };
 
@@ -109,19 +110,17 @@ const Search = () => {
         </div>
       </div>
 
-      {/* ✨ 이미지 포함 추천 리스트 */}
       {suggestions.length > 0 && (
         <ul className="suggestion-list">
           {suggestions.map((item) => (
             <li
-              key={item.itemId} // ✅ 꼭 넣기!
+              key={item.itemId}
               className="suggestion-item with-image"
               onClick={() => navigate(`/post/${item.itemId}`)}
             >
-
               {item.thumbnail ? (
                 <img
-                  src={`http://localhost:8080${item.thumbnail}`} // ✅ 로컬 서버 주소 포함
+                  src={`${import.meta.env.VITE_API_BASE_URL}${item.thumbnail}`}
                   alt="썸네일"
                   className="suggestion-thumb"
                 />
@@ -134,7 +133,6 @@ const Search = () => {
         </ul>
       )}
 
-      {/* 검색 기록 */}
       <div className="history-container">
         <div className="history-header">
           <h3>검색 기록</h3>
@@ -155,7 +153,10 @@ const Search = () => {
                 >
                   {item.query}
                 </span>
-                <button className="Sdelete-button" onClick={() => handleDelete(item.query)}>
+                <button
+                  className="Sdelete-button"
+                  onClick={() => handleDelete(item.query)}
+                >
                   ×
                 </button>
               </li>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import axios from "../api/axiosInstance"; // ✅ axiosInstance import
 
 const Login = () => {
   const [userId, setUserId] = useState("");
@@ -9,8 +10,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/users/${userId}/check`);
-      if (!response.ok) throw new Error("존재하지 않는 사용자입니다.");
+      const response = await axios.get(`/api/users/${userId}/check`); // ✅ baseURL 자동 적용
+      if (!response.status === 200) throw new Error("존재하지 않는 사용자입니다.");
 
       localStorage.setItem("senderId", userId);
       navigate("/home");
@@ -21,13 +22,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      {/* ✅ Default 이미지 추가 */}
-      <img
-        src="/assets/default-image.png"
-        alt="logo"
-        className="login-logo"
-      />
-
+      <img src="/assets/default-image.png" alt="logo" className="login-logo" />
       <h2>SU_Talk 로그인</h2>
 
       <form onSubmit={handleLogin}>

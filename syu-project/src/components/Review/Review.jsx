@@ -1,13 +1,12 @@
-// Review.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosInstance"; // ✅ 변경됨
 import "./Review.css";
 
 const Review = () => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
-  const [sellerProfile, setSellerProfile] = useState(null); // sellerName → 객체 저장
+  const [sellerProfile, setSellerProfile] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,8 +24,8 @@ const Review = () => {
   const handleRating = (index) => setRating(index + 1);
 
   const handleComplete = async () => {
-    if (!rating || !reviewText.trim() || !itemId || !buyerId || !transactionId || !sellerId) {
-      return alert("리뷰 대상 정보가 없습니다.");
+    if (!rating || !reviewText.trim()) {
+      return alert("별점과 내용을 모두 작성해주세요.");
     }
 
     try {
@@ -56,7 +55,7 @@ const Review = () => {
       state: {
         reporterId: buyerId,
         reportedId: sellerId,
-        itemId: itemId,
+        itemId,
       },
     });
   };

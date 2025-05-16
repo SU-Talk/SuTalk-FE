@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
-import axios from "axios";
+import axios from "../api/axiosInstance";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import { FaBars, FaArrowLeft } from "react-icons/fa";
@@ -26,7 +26,6 @@ const ChatRoom = () => {
   const senderId = localStorage.getItem("senderId");
   const isBuyer = senderId && senderId !== chatSellerId;
 
-  // ✅ 1. 채팅방 정보 fallback 조회
   useEffect(() => {
     const fetchChatRoomDetails = async () => {
       try {
@@ -43,14 +42,12 @@ const ChatRoom = () => {
     fetchChatRoomDetails();
   }, [chatRoomId, itemId, chatSellerId, buyerId]);
 
-  // ✅ 2. 거래 ID 조회
   useEffect(() => {
     const fetchTransactionId = async () => {
       if (!itemId || !senderId || !chatSellerId || !buyerId) return;
       try {
         const res = await axios.get(`/api/transactions/item/${itemId}/user/${senderId}`);
         setTransactionId(res.data.transactionId);
-        console.log("✅ 거래 ID:", res.data.transactionId);
       } catch (err) {
         console.error("❌ 거래 ID 조회 실패:", err.response || err);
       }
@@ -58,7 +55,6 @@ const ChatRoom = () => {
     fetchTransactionId();
   }, [itemId, senderId, chatSellerId, buyerId]);
 
-  // ✅ 3. 채팅 메시지 조회 + WebSocket 연결
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -71,7 +67,7 @@ const ChatRoom = () => {
     fetchMessages();
 
     const client = new Client({
-      brokerURL: "ws://localhost:8080/ws",
+      brokerURL: `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/ws`,
       reconnectDelay: 5000,
       onConnect: () => {
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
@@ -89,7 +85,6 @@ const ChatRoom = () => {
     return () => client.deactivate();
   }, [chatRoomId]);
 
-  // ✅ 4. 아이템 상태 조회 (거래 완료 여부 확인)
   useEffect(() => {
     const fetchItemStatus = async () => {
       if (!itemId) return;
@@ -119,7 +114,6 @@ const ChatRoom = () => {
 
   const handleReviewWrite = () => {
     if (!transactionId) {
-      console.warn("🚫 거래 ID 없음:", { itemId, senderId, transactionId });
       return alert("리뷰 대상 정보가 없습니다.");
     }
 
@@ -140,8 +134,7 @@ const ChatRoom = () => {
         alert("채팅방이 삭제되었습니다.");
         navigate("/chatlist");
       } catch (err) {
-        console.error("❌ 채팅방 삭제 실패:", err);
-        alert("채팅방 삭제에 실패했습니다.");
+        alert("채팅방 삭제 실패");
       }
     }
   };
@@ -189,11 +182,11 @@ const ChatRoom = () => {
 
       <ChatBody messages={messages} />
 
-      {isCompleted && isBuyer && (
+      {isCompleted && isBuyer ? (
         <div className="review-banner">
           <button onClick={handleReviewWrite}>📝 후기 작성하기</button>
         </div>
-      )}
+      ) : null}
 
       {isCompleted ? (
         <div className="chat-footer completed-banner">

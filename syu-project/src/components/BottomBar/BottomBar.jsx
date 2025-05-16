@@ -10,14 +10,16 @@ const BottomBar = ({ postId, price, sellerId }) => {
   const [likeCount, setLikeCount] = useState(0);
   const navigate = useNavigate();
   const senderId = localStorage.getItem("senderId");
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 
   // 👉 좋아요 초기화
   useEffect(() => {
     const fetchLikeStatus = async () => {
       try {
         const [isLikedRes, countRes] = await Promise.all([
-          fetch(`/api/likes/${postId}/is-liked?userId=${senderId}`),
-          fetch(`/api/likes/${postId}/count`)
+          fetch(`${baseUrl}/api/likes/${postId}/is-liked?userId=${senderId}`),
+          fetch(`${baseUrl}/api/likes/${postId}/count`)
         ]);
 
         if (isLikedRes.ok) {
@@ -38,21 +40,26 @@ const BottomBar = ({ postId, price, sellerId }) => {
   }, [postId, senderId]);
 
   // 👉 좋아요 토글
-  const handleFavoriteClick = async () => {
-    try {
-      if (isFavorite) {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
-        setIsFavorite(false);
-        setLikeCount((prev) => prev - 1);
-      } else {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
-        setIsFavorite(true);
-        setLikeCount((prev) => prev + 1);
+    const handleFavoriteClick = async () => {
+      try {
+        if (isFavorite) {
+          await fetch(`${baseUrl}/api/likes/${postId}?userId=${senderId}`, {
+            method: "DELETE",
+          });
+          setIsFavorite(false);
+          setLikeCount((prev) => prev - 1);
+        } else {
+          await fetch(`${baseUrl}/api/likes/${postId}?userId=${senderId}`, {
+            method: "POST",
+          });
+          setIsFavorite(true);
+          setLikeCount((prev) => prev + 1);
+        }
+      } catch (err) {
+        console.error("❌ 좋아요 토글 실패:", err);
       }
-    } catch (err) {
-      console.error("❌ 좋아요 토글 실패:", err);
-    }
-  };
+    };
+
 
   // 👉 채팅 시작 로직 통일
   const handleChatClick = async () => {
@@ -62,7 +69,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
     }
 
     try {
-      const transactionRes = await fetch(`/api/transactions`, {
+      const transactionRes = await fetch(`${baseUrl}/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -76,7 +83,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
       const transactionData = await transactionRes.json();
       const transactionId = transactionData.transactionid;
 
-      const chatRoomRes = await fetch(`/api/chat-rooms`, {
+      const chatRoomRes = await fetch(`${baseUrl}/api/chat-rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

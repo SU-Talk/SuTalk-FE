@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import "./Favorites.css";
 import Nav from "../Nav/Nav";
+import axios from "../api/axiosInstance"; // ✅ axiosInstance 사용
 
 const Favorites = () => {
   const [favoriteItems, setFavoriteItems] = useState([]);
@@ -12,18 +13,15 @@ const Favorites = () => {
   const senderId = localStorage.getItem("senderId");
 
   useEffect(() => {
-  const fetchFavorites = async () => {
-    try {
-      const response = await fetch(`/api/likes/my?userId=${senderId}`);
-      const data = await response.json();
-      console.log("🔥 받아온 데이터", data); // 여기서 post.thumbnail이 실제로 있는지 확인
-      setFavoriteItems(data);
-    } catch (error) {
-      console.error("❌ 관심 목록 조회 오류:", error);
-      setError(true);
-    }
-  };
-
+    const fetchFavorites = async () => {
+      try {
+        const response = await axios.get(`/api/likes/my?userId=${senderId}`);
+        setFavoriteItems(response.data);
+      } catch (error) {
+        console.error("❌ 관심 목록 조회 오류:", error);
+        setError(true);
+      }
+    };
 
     if (senderId) {
       fetchFavorites();
@@ -58,7 +56,7 @@ const Favorites = () => {
                 <img
                   src={
                     post.itemImages?.length > 0
-                      ? `http://localhost:8080${post.itemImages[0]}`
+                      ? `${import.meta.env.VITE_API_BASE_URL}${post.itemImages[0]}`
                       : "/assets/default-image.png"
                   }
                   alt={post.title}
@@ -74,7 +72,6 @@ const Favorites = () => {
                 </div>
               </div>
             </Link>
-
           ))
         ) : (
           <p className="no-favorites">관심 목록이 비어 있습니다.</p>

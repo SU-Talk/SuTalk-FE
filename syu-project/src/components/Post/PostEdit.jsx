@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axiosInstance";
 import "./Post.css";
 
 const PostEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { postData: initialData } = location.state || {};
-
   const isEditMode = !!initialData;
 
   const [formData, setFormData] = useState({
@@ -16,7 +15,10 @@ const PostEdit = () => {
     price: initialData?.price || "",
     description: initialData?.description || "",
     location: initialData?.meetLocation || "",
-    images: initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) || [],
+    images:
+      initialData?.itemImages?.map(
+        (img) => `${import.meta.env.VITE_API_BASE_URL}${img}`
+      ) || [],
     imageFiles: [],
   });
 
@@ -71,9 +73,8 @@ const PostEdit = () => {
     try {
       let response;
       if (isEditMode) {
-        // 수정 요청
         response = await axios.put(
-          `http://localhost:8080/api/items/${initialData.itemid}`,
+          `/api/items/${initialData.itemid}`,
           requestForm,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -81,8 +82,7 @@ const PostEdit = () => {
         );
         alert("게시글이 수정되었습니다!");
       } else {
-        // 새 글 등록
-        response = await axios.post("http://localhost:8080/api/items", requestForm, {
+        response = await axios.post(`/api/items`, requestForm, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("게시글이 작성되었습니다!");
@@ -136,9 +136,10 @@ const PostEdit = () => {
           type="text"
           placeholder="제목"
           value={formData.title}
-          onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
         />
-
         <select
           className="category-select"
           value={formData.category}
@@ -163,7 +164,6 @@ const PostEdit = () => {
             </option>
           ))}
         </select>
-
         <input
           type="text"
           placeholder="가격 (원)"
@@ -172,15 +172,16 @@ const PostEdit = () => {
             setFormData((prev) => ({ ...prev, price: e.target.value }))
           }
         />
-
         <textarea
           placeholder="자세한 설명"
           value={formData.description}
           onChange={(e) =>
-            setFormData((prev) => ({ ...prev, description: e.target.value }))
+            setFormData((prev) => ({
+              ...prev,
+              description: e.target.value,
+            }))
           }
         ></textarea>
-
         <input
           type="text"
           placeholder="거래 희망 장소"
@@ -189,7 +190,6 @@ const PostEdit = () => {
             setFormData((prev) => ({ ...prev, location: e.target.value }))
           }
         />
-
         <button type="button" className="submit-button" onClick={handleSubmit}>
           {isEditMode ? "수정 완료" : "작성 완료"}
         </button>
