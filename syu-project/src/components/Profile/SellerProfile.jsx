@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import SellerReviewList from "../Review/SellerReviewList";
-import "./profile.css";
+import "./Profile.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { FaBars, FaArrowLeft } from "react-icons/fa";
