@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Chat.css";
 import Nav from "../Nav/Nav";
-import axios from "../api/axiosInstance";
+import axios from "../../api/axiosInstance";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../api/axiosInstance";
+import axios from "../../api/axiosInstance";
 import "./Search.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faClock, faSearch } from "@fortawesome/free-solid-svg-icons";

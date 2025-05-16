@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../api/axiosInstance"; // ✅ 변경됨
+import axios from "../../api/axiosInstance"; // ✅ 변경됨
 import "./SellerReviewList.css";
 
 const SellerReviewList = ({ sellerId }) => {

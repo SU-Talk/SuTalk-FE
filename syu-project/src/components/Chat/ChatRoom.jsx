@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
-import axios from "../api/axiosInstance";
+import axios from "../../api/axiosInstance";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import { FaBars, FaArrowLeft } from "react-icons/fa";
