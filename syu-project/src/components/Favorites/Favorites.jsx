@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import "./Favorites.css";
 import Nav from "../Nav/Nav";
-import axios from "../../api/axiosInstance"; // ✅ axiosInstance 사용
+import axios from "@/api/axiosInstance";
 
 const Favorites = () => {
   const [favoriteItems, setFavoriteItems] = useState([]);

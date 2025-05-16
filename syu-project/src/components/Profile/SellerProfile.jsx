@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import axios from "../../api/axiosInstance";
+import axios from "@/api/axiosInstance";
 import SellerReviewList from "../Review/SellerReviewList";
 import "./Profile.css";
 import { FaBars, FaArrowLeft } from "react-icons/fa"; // ✅ 중복 없이 정리

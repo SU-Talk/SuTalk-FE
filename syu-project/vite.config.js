@@ -1,17 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
   define: {
     global: {},
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'), // ✅ src 경로 별칭 설정
+    },
+  },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Spring Boot 백엔드 주소
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'), // 혹시 prefix 제거할 거면 이걸 수정
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },

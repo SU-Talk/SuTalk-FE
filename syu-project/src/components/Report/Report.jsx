@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../../api/axiosInstance"; // ✅ 변경됨
+import axios from "@/api/axiosInstance";
 import "./Report.css";
 
 const Report = () => {

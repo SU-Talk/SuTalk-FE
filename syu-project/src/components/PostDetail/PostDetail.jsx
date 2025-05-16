@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
 import TopBar from "../TopBar/TopBar";
 import BottomBar from "../BottomBar/BottomBar";
-import axios from "../../api/axiosInstance";
+import axios from "@/api/axiosInstance";
+
 
 const PostDetail = () => {
   const { postId } = useParams();

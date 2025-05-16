@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../api/axiosInstance";
+import axios from "@/api/axiosInstance";
 import "./UserEnter.css";
 
 const UserEnter = () => {
