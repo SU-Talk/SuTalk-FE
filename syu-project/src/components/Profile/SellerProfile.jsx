@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import axios from "../api/axiosInstance"; // ✅ 변경됨
+import axios from "../api/axiosInstance";
 import SellerReviewList from "../Review/SellerReviewList";
 import "./Profile.css";
-import { FaArrowLeft } from "react-icons/fa";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
-import { FaBars, FaArrowLeft } from "react-icons/fa";
+import { FaBars, FaArrowLeft } from "react-icons/fa"; // ✅ 중복 없이 정리
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
