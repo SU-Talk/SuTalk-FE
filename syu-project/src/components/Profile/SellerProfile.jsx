@@ -4,6 +4,9 @@ import axios from "../api/axiosInstance"; // ✅ 변경됨
 import SellerReviewList from "../Review/SellerReviewList";
 import "./Profile.css";
 import { FaArrowLeft } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { FaBars, FaArrowLeft } from "react-icons/fa";
 
 const SellerProfile = () => {
   const { sellerId } = useParams();

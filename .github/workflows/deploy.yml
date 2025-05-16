@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     defaults:
-      run:
-        working-directory: ./syu-project
+        run:
+            working-directory: ./syu-project
+
+
 
     steps:
       - name: Checkout Repository
