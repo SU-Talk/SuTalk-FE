@@ -1,0 +1,78 @@
+.user-enter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 30px 20px;
+  background-color: #f8f9fc;
+  text-align: center;
+}
+
+.logo-image {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.brand {
+  color: #2670ff;
+}
+
+.enter-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.user-input {
+  width: 80%;
+  max-width: 300px;
+  padding: 12px;
+  font-size: 15px;
+  border: 1.5px solid #ced4da;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  outline: none;
+}
+
+.enter-button {
+  padding: 12px 25px;
+  background-color: #2670ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.enter-button:hover {
+  background-color: #195fe0;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2670ff;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: #195fe0;
+}

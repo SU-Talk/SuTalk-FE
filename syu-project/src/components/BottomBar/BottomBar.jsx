@@ -1,49 +1,122 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons"; // 꽉 찬 하트
-import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons"; // 테두리 하트
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import { useNavigate } from "react-router-dom";
 import "./BottomBar.css";
 
-const BottomBar = ({ postId, price }) => {
-  const [isFavorite, setIsFavorite] = useState(false); // 관심 상태 관리
+const BottomBar = ({ postId, price, sellerId }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const navigate = useNavigate();
+  const senderId = localStorage.getItem("senderId");
 
-  // 로컬 스토리지에서 관심 내역 초기화
+  // 👉 좋아요 초기화
   useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    setIsFavorite(favorites.includes(postId));
-  }, [postId]);
+    const fetchLikeStatus = async () => {
+      try {
+        const [isLikedRes, countRes] = await Promise.all([
+          fetch(`/api/likes/${postId}/is-liked?userId=${senderId}`),
+          fetch(`/api/likes/${postId}/count`)
+        ]);
 
-  // 관심 버튼 클릭 핸들러
-  const handleFavoriteClick = () => {
-    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        if (isLikedRes.ok) {
+          const liked = await isLikedRes.json();
+          setIsFavorite(liked);
+        }
 
-    if (isFavorite) {
-      // 이미 관심 목록에 있다면 제거
-      const updatedFavorites = favorites.filter((id) => id !== postId);
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-      setIsFavorite(false);
-    } else {
-      // 관심 목록에 추가
-      favorites.push(postId);
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      setIsFavorite(true);
+        if (countRes.ok) {
+          const count = await countRes.json();
+          setLikeCount(count);
+        }
+      } catch (err) {
+        console.error("❌ 좋아요 상태 불러오기 실패:", err);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [postId, senderId]);
+
+  // 👉 좋아요 토글
+  const handleFavoriteClick = async () => {
+    try {
+      if (isFavorite) {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
+        setIsFavorite(false);
+        setLikeCount((prev) => prev - 1);
+      } else {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
+        setIsFavorite(true);
+        setLikeCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error("❌ 좋아요 토글 실패:", err);
+    }
+  };
+
+  // 👉 채팅 시작 로직 통일
+  const handleChatClick = async () => {
+    if (!senderId || !sellerId) {
+      alert("로그인 또는 판매자 정보가 필요합니다.");
+      return;
+    }
+
+    try {
+      const transactionRes = await fetch(`/api/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          buyerId: senderId,
+          sellerId,
+          itemId: postId
+        })
+      });
+
+      if (!transactionRes.ok) throw new Error("거래 생성 실패");
+      const transactionData = await transactionRes.json();
+      const transactionId = transactionData.transactionid;
+
+      const chatRoomRes = await fetch(`/api/chat-rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemTransactionId: transactionId,
+          buyerId: senderId,
+          sellerId
+        })
+      });
+
+      if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
+
+      const chatRoomData = await chatRoomRes.json();
+      const chatRoomId =
+        chatRoomData.chatroomId ||
+        chatRoomData.chatRoomId ||
+        chatRoomData.chatroomid;
+
+      if (!chatRoomId) throw new Error("chatRoomId 없음");
+
+      navigate(`/chat/${chatRoomId}`);
+    } catch (error) {
+      console.error("❌ 채팅 시작 실패:", error);
+      alert("채팅 시작 중 오류 발생");
     }
   };
 
   return (
     <div className="bottom-bar">
-      {/* 왼쪽: 좋아요 아이콘과 가격 */}
       <div className="bottom-bar-left">
         <FontAwesomeIcon
-          icon={isFavorite ? solidHeart : regularHeart} // 상태에 따라 아이콘 변경
+          icon={isFavorite ? solidHeart : regularHeart}
           className={`heart-icon ${isFavorite ? "favorite" : ""}`}
-          onClick={handleFavoriteClick} // 클릭 이벤트 핸들러
+          onClick={handleFavoriteClick}
         />
-        <span className="price">{price}</span>
+        <span className="like-count">{likeCount}</span>
+        <span className="price">{price.toLocaleString()}원</span>
       </div>
-
-      {/* 오른쪽: 채팅하기 버튼 */}
-      <button className="chat-button">채팅하기</button>
+      <button className="bottom-chat-button" onClick={handleChatClick}>
+        💬 채팅하기
+      </button>
     </div>
   );
 };

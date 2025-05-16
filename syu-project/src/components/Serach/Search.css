@@ -34,6 +34,13 @@
   color: #ffffff;
 }
 
+.search-bar-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
 .search-input {
   flex: 1;
   margin: 0 10px;
@@ -62,6 +69,62 @@
   background-color: #e6e6e6;
 }
 
+/* ✅ 추천어 리스트 */
+.suggestion-list {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  right: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 5px 0;
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f2f2f2;
+}
+
+/* ✅ 이미지 포함 추천어 전용 스타일 */
+.suggestion-item.with-image {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+}
+
+.suggestion-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.suggestion-thumb.placeholder {
+  background-color: #ddd;
+}
+
+.suggestion-title {
+  font-size: 14px;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ✅ 검색 기록 */
 .history-container {
   margin-top: 60px;
   padding: 15px;
@@ -106,7 +169,7 @@
   width: 15px;
   height: 15px;
   margin-right: 10px;
-  color: #666; /* Gray color for clock icon */
+  color: #666;
 }
 
 .Sdelete-button {
@@ -116,7 +179,7 @@
   margin-left: auto;
   padding: 5px;
   color: #666;
-  font-size: 18px; /* Slightly larger for better visibility */
+  font-size: 18px;
   line-height: 1;
   transition: color 0.3s;
 }
@@ -138,6 +201,7 @@
   color: #1a52cc;
 }
 
+/* ✅ 반응형 */
 @media (max-width: 550px) {
   .search-input {
     font-size: 13px;

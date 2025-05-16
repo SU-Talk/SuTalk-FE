@@ -1,49 +1,98 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import "./Post.css";
 
-const Post = () => {
+const PostEdit = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { postData: initialData } = location.state || {};
 
-  // 상태 초기화 (게시글 작성 전용)
+  const isEditMode = !!initialData;
+
   const [formData, setFormData] = useState({
-    title: "",
-    category: "",
-    price: "",
-    description: "",
-    location: "",
-    images: [],
+    title: initialData?.title || "",
+    category: initialData?.category || "",
+    price: initialData?.price || "",
+    description: initialData?.description || "",
+    location: initialData?.meetLocation || "",
+    images: initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) || [],
+    imageFiles: [],
   });
 
-  // 이미지 업로드 핸들러 (Object URL 생성)
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 5) {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
-    const newImages = files.map((file) => URL.createObjectURL(file));
+
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
+      images: [...prev.images, ...previewUrls],
+      imageFiles: [...prev.imageFiles, ...files],
     }));
   };
 
-  // 이미지 삭제 핸들러
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, images: newImages }));
+    const newImageFiles = formData.imageFiles.filter((_, i) => i !== index);
+    setFormData((prev) => ({
+      ...prev,
+      images: newImages,
+      imageFiles: newImageFiles,
+    }));
   };
 
-  // 폼 제출 핸들러
-  const handleSubmit = () => {
-    if (!formData.title || !formData.category || !formData.price) {
-      alert("필수 항목을 모두 입력해주세요.");
+  const handleSubmit = async () => {
+    const sellerId = localStorage.getItem("senderId");
+    if (!sellerId) {
+      alert("로그인 정보가 없습니다.");
       return;
     }
-    alert("게시글이 작성되었습니다!");
-    console.log("새로운 게시글 데이터:", formData); // 실제로는 API 호출
-    navigate(-1); // 이전 페이지로 이동
+
+    const itemData = {
+      title: formData.title,
+      category: formData.category,
+      price: Number(formData.price),
+      description: formData.description,
+      meetLocation: formData.location,
+      sellerId,
+    };
+
+    const requestForm = new FormData();
+    requestForm.append(
+      "item",
+      new Blob([JSON.stringify(itemData)], { type: "application/json" })
+    );
+    formData.imageFiles.forEach((file) => requestForm.append("images", file));
+
+    try {
+      let response;
+      if (isEditMode) {
+        // 수정 요청
+        response = await axios.put(
+          `http://localhost:8080/api/items/${initialData.itemid}`,
+          requestForm,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        alert("게시글이 수정되었습니다!");
+      } else {
+        // 새 글 등록
+        response = await axios.post("http://localhost:8080/api/items", requestForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("게시글이 작성되었습니다!");
+      }
+
+      navigate(`/post/${response.data.itemid}`);
+    } catch (error) {
+      console.error("❌ 저장 중 에러 발생:", error);
+      alert("에러가 발생했어요. 콘솔을 확인해주세요.");
+    }
   };
 
   return (
@@ -52,10 +101,9 @@ const Post = () => {
         <button className="close-button" onClick={() => navigate(-1)}>
           &lt;
         </button>
-        <h3>글쓰기</h3>
+        <h3>{isEditMode ? "게시글 수정" : "글쓰기"}</h3>
       </header>
 
-      {/* 이미지 업로드 섹션 */}
       <div className="image-upload">
         <div className="image-preview">
           {formData.images.map((img, index) => (
@@ -63,7 +111,8 @@ const Post = () => {
               <img src={img} alt={`미리보기 ${index + 1}`} />
               <button
                 className="delete-image-button"
-                onClick={() => handleDeleteImage(index)}>
+                onClick={() => handleDeleteImage(index)}
+              >
                 ×
               </button>
             </div>
@@ -82,15 +131,12 @@ const Post = () => {
         />
       </div>
 
-      {/* 게시글 작성 폼 */}
       <form className="post-form">
         <input
           type="text"
           placeholder="제목"
           value={formData.title}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, title: e.target.value }))
-          }
+          onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
         />
 
         <select
@@ -98,7 +144,8 @@ const Post = () => {
           value={formData.category}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, category: e.target.value }))
-          }>
+          }
+        >
           <option value="" disabled>
             카테고리 선택
           </option>
@@ -131,7 +178,8 @@ const Post = () => {
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
-          }></textarea>
+          }
+        ></textarea>
 
         <input
           type="text"
@@ -143,11 +191,11 @@ const Post = () => {
         />
 
         <button type="button" className="submit-button" onClick={handleSubmit}>
-          작성 완료
+          {isEditMode ? "수정 완료" : "작성 완료"}
         </button>
       </form>
     </div>
   );
 };
 
-export default Post;
+export default PostEdit;

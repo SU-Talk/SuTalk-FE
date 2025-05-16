@@ -2,82 +2,137 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Search.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faClock, faSearch } from "@fortawesome/free-solid-svg-icons";
 
-const SearchTable = () => {
-  const [history, setHistory] = useState([]); // 검색 기록 상태
-  const [searchInput, setSearchInput] = useState(""); // 검색 입력 상태
-  const navigate = useNavigate(); // 페이지 이동을 위한 navigate 훅
+const Search = () => {
+  const [history, setHistory] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("senderId");
 
-  // 검색 기록 초기화 (더미 데이터 가져오기)
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch("/public/historyDummyData.json");
-        if (!response.ok) {
-          throw new Error("데이터를 가져오는데 실패했습니다.");
-        }
+        const response = await fetch(`/api/search-history?userId=${userId}`);
+        if (!response.ok) throw new Error("불러오기 실패");
         const data = await response.json();
-        setHistory(data); // 초기 검색 기록 설정
+        const formatted = data.map((item, idx) => ({
+          id: idx + 1,
+          query: item,
+        }));
+        setHistory(formatted);
       } catch (error) {
-        console.error("검색 기록을 가져오는 중 오류 발생:", error);
+        console.error("검색 기록 오류:", error);
         setHistory([]);
       }
     };
+    if (userId) fetchHistory();
+  }, [userId]);
 
-    fetchHistory();
-  }, []);
-
-  // 검색 실행 핸들러
-  const handleSearch = () => {
-    if (!searchInput.trim()) return; // 빈 입력 방지
-
-    // 새로운 검색 기록 추가
-    const newHistory = {
-      id: Date.now(), // 고유 ID 생성
-      query: searchInput.trim(),
+  // ✨ 이미지 포함 추천어 요청
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchInput.trim()) return;
+      try {
+        const response = await fetch(`/api/items/suggest?keyword=${searchInput}`);
+        if (!response.ok) throw new Error("추천어 요청 실패");
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("추천어 오류:", error);
+      }
     };
-    setHistory((prevHistory) => [...prevHistory, newHistory]);
+    const delay = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(delay);
+  }, [searchInput]);
 
-    // Home 페이지로 이동하며 검색어 전달
-    navigate(`/home?q=${encodeURIComponent(searchInput.trim())}`);
+  const handleSearch = async (keyword) => {
+    const query = keyword || searchInput.trim();
+    if (!query) return;
 
-    // 입력 필드 초기화
+    try {
+      await fetch("/api/search-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword: query, userId }),
+      });
+    } catch (error) {
+      console.error("검색어 저장 실패:", error);
+    }
+
+    navigate(`/home?q=${encodeURIComponent(query)}`);
     setSearchInput("");
+    setSuggestions([]);
   };
 
-  // 특정 검색 기록 삭제
-  const handleDelete = (id) => {
-    setHistory((prevHistory) => prevHistory.filter((item) => item.id !== id));
+  const handleDelete = async (keyword) => {
+    try {
+      await fetch(`/api/search-history/${encodeURIComponent(keyword)}?userId=${userId}`, {
+        method: "DELETE",
+      });
+      setHistory((prev) => prev.filter((item) => item.query !== keyword));
+    } catch (error) {
+      console.error("삭제 실패:", error);
+    }
   };
 
-  // 모든 검색 기록 삭제
-  const handleDeleteAll = () => {
-    setHistory([]);
+  const handleDeleteAll = async () => {
+    try {
+      await fetch(`/api/search-history?userId=${userId}`, { method: "DELETE" });
+      setHistory([]);
+    } catch (error) {
+      console.error("전체 삭제 실패:", error);
+    }
   };
 
   return (
     <div className="search-container">
-      {/* 상단 헤더 */}
       <div className="header">
         <Link to="/home">
           <button className="search-back-button">
-            <FontAwesomeIcon
-              icon={faChevronLeft}
-              className="search-back-image"
-            />
+            <FontAwesomeIcon icon={faChevronLeft} className="search-back-image" />
           </button>
         </Link>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="원하는 물건을 검색"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)} // 입력값 업데이트
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()} // 엔터 키로 검색 실행
-        />
-        <button className="search-btn" onClick={handleSearch}></button>
+        <div className="search-bar-wrapper">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="원하는 물건을 검색"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <button className="search-btn" onClick={() => handleSearch()}>
+            <FontAwesomeIcon icon={faSearch} />
+          </button>
+        </div>
       </div>
+
+      {/* ✨ 이미지 포함 추천 리스트 */}
+      {suggestions.length > 0 && (
+        <ul className="suggestion-list">
+          {suggestions.map((item) => (
+            <li
+              key={item.itemId} // ✅ 꼭 넣기!
+              className="suggestion-item with-image"
+              onClick={() => navigate(`/post/${item.itemId}`)}
+            >
+
+              {item.thumbnail ? (
+                <img
+                  src={`http://localhost:8080${item.thumbnail}`} // ✅ 로컬 서버 주소 포함
+                  alt="썸네일"
+                  className="suggestion-thumb"
+                />
+              ) : (
+                <div className="suggestion-thumb placeholder" />
+              )}
+              <span className="suggestion-title">{item.title}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* 검색 기록 */}
       <div className="history-container">
@@ -93,20 +148,14 @@ const SearchTable = () => {
           {history.length > 0 ? (
             history.map((item) => (
               <li key={item.id} className="history-item">
-                <FontAwesomeIcon
-                  icon={faClock}
-                  className="search-marker-image"
-                />
+                <FontAwesomeIcon icon={faClock} className="search-marker-image" />
                 <span
                   className="history-query"
-                  onClick={() =>
-                    navigate(`/home?q=${encodeURIComponent(item.query)}`)
-                  }>
+                  onClick={() => handleSearch(item.query)}
+                >
                   {item.query}
                 </span>
-                <button
-                  className="Sdelete-button"
-                  onClick={() => handleDelete(item.id)}>
+                <button className="Sdelete-button" onClick={() => handleDelete(item.query)}>
                   ×
                 </button>
               </li>
@@ -120,4 +169,4 @@ const SearchTable = () => {
   );
 };
 
-export default SearchTable;
+export default Search;
