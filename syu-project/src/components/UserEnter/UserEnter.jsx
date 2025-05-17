@@ -22,7 +22,7 @@ const UserEnter = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/users", form);
+      await axios.post("/users", form);
       localStorage.setItem("senderId", form.userid);
       navigate("/home");
     } catch (error) {
