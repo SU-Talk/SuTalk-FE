@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Client } from "@stomp/stompjs";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import { FaBars, FaArrowLeft } from "react-icons/fa";
@@ -30,7 +30,7 @@ const ChatRoom = () => {
     const fetchChatRoomDetails = async () => {
       try {
         if (!itemId || !chatSellerId || !buyerId) {
-          const res = await axios.get(`/api/chat-rooms/${chatRoomId}`);
+          const res = await axios.get(`/chat-rooms/${chatRoomId}`);
           setItemId(res.data.itemId);
           setChatSellerId(res.data.sellerId);
           setBuyerId(res.data.buyerId);
@@ -46,7 +46,7 @@ const ChatRoom = () => {
     const fetchTransactionId = async () => {
       if (!itemId || !senderId || !chatSellerId || !buyerId) return;
       try {
-        const res = await axios.get(`/api/transactions/item/${itemId}/user/${senderId}`);
+        const res = await axios.get(`/transactions/item/${itemId}/user/${senderId}`);
         setTransactionId(res.data.transactionId);
       } catch (err) {
         console.error("❌ 거래 ID 조회 실패:", err.response || err);
@@ -58,7 +58,7 @@ const ChatRoom = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`/api/chat-messages/${chatRoomId}`);
+        const res = await axios.get(`/chat-messages/${chatRoomId}`);
         setMessages(res.data);
       } catch (err) {
         console.error("❌ 메시지 조회 실패:", err);
@@ -89,7 +89,7 @@ const ChatRoom = () => {
     const fetchItemStatus = async () => {
       if (!itemId) return;
       try {
-        const res = await axios.get(`/api/items/${itemId}`);
+        const res = await axios.get(`/items/${itemId}`);
         setItemStatus(res.data.status);
         if (res.data.status === "거래완료") {
           setIsCompleted(true);
@@ -103,7 +103,7 @@ const ChatRoom = () => {
 
   const handleCompleteDeal = async () => {
     try {
-      await axios.post(`/api/items/${itemId}/complete?chatRoomId=${chatRoomId}`);
+      await axios.post(`/items/${itemId}/complete?chatRoomId=${chatRoomId}`);
       alert("거래가 완료되었습니다.");
       setIsCompleted(true);
       setItemStatus("거래완료");
@@ -130,7 +130,7 @@ const ChatRoom = () => {
   const handleLeaveChat = async () => {
     if (window.confirm("정말 채팅방을 나가시겠습니까?")) {
       try {
-        await axios.delete(`/api/chat-rooms/${chatRoomId}`);
+        await axios.delete(`/chat-rooms/${chatRoomId}`);
         alert("채팅방이 삭제되었습니다.");
         navigate("/chatlist");
       } catch (err) {

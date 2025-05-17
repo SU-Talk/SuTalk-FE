@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import "./Favorites.css";
 import Nav from "../Nav/Nav";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 
 const Favorites = () => {
   const [favoriteItems, setFavoriteItems] = useState([]);
@@ -15,7 +15,7 @@ const Favorites = () => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await axios.get(`/api/likes/my?userId=${senderId}`);
+        const response = await axios.get(`/likes/my?userId=${senderId}`);
         setFavoriteItems(response.data);
       } catch (error) {
         console.error("❌ 관심 목록 조회 오류:", error);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./Report.css";
 
 const Report = () => {
@@ -23,7 +23,7 @@ const Report = () => {
         : selectedReason;
 
     try {
-      await axios.post("/api/reports", {
+      await axios.post("/reports", {
         reporterId,
         reportedId,
         itemId,

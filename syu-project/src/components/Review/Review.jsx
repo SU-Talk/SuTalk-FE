@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./Review.css";
 
 const Review = () => {
@@ -15,7 +15,7 @@ const Review = () => {
   useEffect(() => {
     if (sellerId) {
       axios
-        .get(`/api/users/${sellerId}`)
+        .get(`/users/${sellerId}`)
         .then((res) => setSellerProfile(res.data))
         .catch((err) => console.error("❌ 판매자 정보 조회 실패:", err));
     }
@@ -29,7 +29,7 @@ const Review = () => {
     }
 
     try {
-      await axios.post("/api/reviews", {
+      await axios.post("/reviews", {
         itemId,
         buyerId,
         revieweeId: sellerId,

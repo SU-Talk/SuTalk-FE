@@ -26,7 +26,7 @@ const Home = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/items`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/items`);
       if (!response.ok) throw new Error("네트워크 오류");
       const data = await response.json();
       setPosts(data);

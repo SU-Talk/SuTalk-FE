@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./Post.css";
 
 const PostEdit = () => {
@@ -74,7 +74,7 @@ const PostEdit = () => {
       let response;
       if (isEditMode) {
         response = await axios.put(
-          `/api/items/${initialData.itemid}`,
+          `/items/${initialData.itemid}`,
           requestForm,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -82,7 +82,7 @@ const PostEdit = () => {
         );
         alert("게시글이 수정되었습니다!");
       } else {
-        response = await axios.post(`/api/items`, requestForm, {
+        response = await axios.post(`/items`, requestForm, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("게시글이 작성되었습니다!");

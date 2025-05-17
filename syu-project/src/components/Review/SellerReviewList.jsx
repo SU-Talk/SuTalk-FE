@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./SellerReviewList.css";
 
 const SellerReviewList = ({ sellerId }) => {
@@ -8,7 +8,7 @@ const SellerReviewList = ({ sellerId }) => {
   useEffect(() => {
     if (!sellerId) return;
     axios
-      .get(`/api/reviews/seller/${sellerId}`)
+      .get(`/reviews/seller/${sellerId}`)
       .then((res) => setReviews(res.data))
       .catch((err) => console.error("❌ 판매자 리뷰 조회 실패:", err));
   }, [sellerId]);

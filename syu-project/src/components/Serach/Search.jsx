@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./Search.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faClock, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -15,7 +15,7 @@ const Search = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const { data } = await axios.get(`/api/search-history`, {
+        const { data } = await axios.get(`/search-history`, {
           params: { userId },
         });
         const formatted = data.map((item, idx) => ({
@@ -35,7 +35,7 @@ const Search = () => {
     const fetchSuggestions = async () => {
       if (!searchInput.trim()) return;
       try {
-        const { data } = await axios.get(`/api/items/suggest`, {
+        const { data } = await axios.get(`/items/suggest`, {
           params: { keyword: searchInput },
         });
         setSuggestions(data);
@@ -52,7 +52,7 @@ const Search = () => {
     if (!query) return;
 
     try {
-      await axios.post(`/api/search-history`, {
+      await axios.post(`/search-history`, {
         keyword: query,
         userId,
       });
@@ -67,7 +67,7 @@ const Search = () => {
 
   const handleDelete = async (keyword) => {
     try {
-      await axios.delete(`/api/search-history/${encodeURIComponent(keyword)}`, {
+      await axios.delete(`/search-history/${encodeURIComponent(keyword)}`, {
         params: { userId },
       });
       setHistory((prev) => prev.filter((item) => item.query !== keyword));
@@ -78,7 +78,7 @@ const Search = () => {
 
   const handleDeleteAll = async () => {
     try {
-      await axios.delete(`/api/search-history`, {
+      await axios.delete(`/search-history`, {
         params: { userId },
       });
       setHistory([]);

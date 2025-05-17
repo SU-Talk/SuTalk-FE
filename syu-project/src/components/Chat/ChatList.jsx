@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Chat.css";
 import Nav from "../Nav/Nav";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 
 
 const ChatList = () => {
@@ -15,7 +15,7 @@ const ChatList = () => {
 
     setLoading(true);
     try {
-      const res = await axios.get(`/api/chat-rooms?userId=${senderId}`);
+      const res = await axios.get(`/chat-rooms?userId=${senderId}`);
       setChats(res.data);
     } catch (err) {
       console.error("❌ 채팅 목록 오류:", err);

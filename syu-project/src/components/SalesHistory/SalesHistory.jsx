@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import "./SalesHistory.css";
 
 const SalesHistory = () => {
@@ -13,7 +13,7 @@ const SalesHistory = () => {
     if (!userId) return;
 
     try {
-      const { data } = await axios.get(`/api/items/mine`, {
+      const { data } = await axios.get(`/items/mine`, {
         params: { userId },
       });
 
@@ -39,7 +39,7 @@ const SalesHistory = () => {
   const handleDelete = async (itemid) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
-      await axios.delete(`/api/items/${itemid}`);
+      await axios.delete(`/items/${itemid}`);
       alert("삭제되었습니다.");
       fetchSalesData();
     } catch (error) {
@@ -50,7 +50,7 @@ const SalesHistory = () => {
 
   const handleStatusChange = async (itemid, newStatus) => {
     try {
-      await axios.patch(`/api/items/${itemid}/status`, { status: newStatus });
+      await axios.patch(`/items/${itemid}/status`, { status: newStatus });
       fetchSalesData();
     } catch (error) {
       console.error("❌ 상태 변경 실패:", error);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 
 const Login = () => {
   const [userId, setUserId] = useState("");
@@ -10,7 +10,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`/api/users/${userId}/check`); // ✅ baseURL 자동 적용
+      const response = await axios.get(`/users/${userId}/check`); // ✅ baseURL 자동 적용
       if (!response.status === 200) throw new Error("존재하지 않는 사용자입니다.");
 
       localStorage.setItem("senderId", userId);

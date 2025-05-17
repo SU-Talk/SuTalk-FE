@@ -18,8 +18,8 @@ const BottomBar = ({ postId, price, sellerId }) => {
     const fetchLikeStatus = async () => {
       try {
         const [isLikedRes, countRes] = await Promise.all([
-          fetch(`${baseUrl}/api/likes/${postId}/is-liked?userId=${senderId}`),
-          fetch(`${baseUrl}/api/likes/${postId}/count`)
+          fetch(`${baseUrl}/likes/${postId}/is-liked?userId=${senderId}`),
+          fetch(`${baseUrl}/likes/${postId}/count`)
         ]);
 
         if (isLikedRes.ok) {
@@ -43,13 +43,13 @@ const BottomBar = ({ postId, price, sellerId }) => {
     const handleFavoriteClick = async () => {
       try {
         if (isFavorite) {
-          await fetch(`${baseUrl}/api/likes/${postId}?userId=${senderId}`, {
+          await fetch(`${baseUrl}/likes/${postId}?userId=${senderId}`, {
             method: "DELETE",
           });
           setIsFavorite(false);
           setLikeCount((prev) => prev - 1);
         } else {
-          await fetch(`${baseUrl}/api/likes/${postId}?userId=${senderId}`, {
+          await fetch(`${baseUrl}/likes/${postId}?userId=${senderId}`, {
             method: "POST",
           });
           setIsFavorite(true);
@@ -69,7 +69,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
     }
 
     try {
-      const transactionRes = await fetch(`${baseUrl}/api/transactions`, {
+      const transactionRes = await fetch(`${baseUrl}/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -83,7 +83,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
       const transactionData = await transactionRes.json();
       const transactionId = transactionData.transactionid;
 
-      const chatRoomRes = await fetch(`${baseUrl}/api/chat-rooms`, {
+      const chatRoomRes = await fetch(`${baseUrl}/chat-rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 import SellerReviewList from "../Review/SellerReviewList";
 import "./Profile.css";
 import { FaBars, FaArrowLeft } from "react-icons/fa"; // ✅ 중복 없이 정리
@@ -24,7 +24,7 @@ const SellerProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`/api/users/${sellerId}`);
+        const response = await axios.get(`/users/${sellerId}`);
         setProfile(response.data);
       } catch (error) {
         console.error("❌ 프로필 조회 실패:", error);
@@ -33,7 +33,7 @@ const SellerProfile = () => {
 
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`/api/items/by-seller?sellerId=${sellerId}`);
+        const response = await axios.get(`/items/by-seller?sellerId=${sellerId}`);
         setPosts(response.data);
       } catch (error) {
         console.error("❌ 게시글 조회 실패:", error);

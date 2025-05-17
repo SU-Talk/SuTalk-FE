@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
 import TopBar from "../TopBar/TopBar";
 import BottomBar from "../BottomBar/BottomBar";
-import axios from "@/api/axiosInstance";
+import axios from "@/axiosInstance";
 
 
 const PostDetail = () => {
@@ -17,7 +17,7 @@ const PostDetail = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(`/api/items/${postId}`);
+        const response = await axios.get(`/items/${postId}`);
         setPost(response.data);
       } catch (error) {
         console.error("❌ 게시글 데이터 로딩 실패:", error);
@@ -38,7 +38,7 @@ const PostDetail = () => {
     }
 
     try {
-      const transactionRes = await axios.post(`/api/transactions`, {
+      const transactionRes = await axios.post(`/transactions`, {
         buyerId,
         sellerId,
         itemId: postId,
@@ -46,7 +46,7 @@ const PostDetail = () => {
 
       const transactionId = transactionRes.data.transactionid;
 
-      const chatRoomRes = await axios.post(`/api/chat-rooms`, {
+      const chatRoomRes = await axios.post(`/chat-rooms`, {
         itemTransactionId: transactionId,
         buyerId,
         sellerId,
