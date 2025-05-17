@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import axios from "@/axiosInstance";
+import axios from "@/api/axiosInstance";
 
 const Login = () => {
   const [userId, setUserId] = useState("");

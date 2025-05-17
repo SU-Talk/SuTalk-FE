@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "@/axiosInstance";
+import axios from "@/api/axiosInstance";
 import "./SellerReviewList.css";
 
 const SellerReviewList = ({ sellerId }) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "@/axiosInstance";
+import axios from "@/api/axiosInstance";
 import "./SalesHistory.css";
 
 const SalesHistory = () => {
