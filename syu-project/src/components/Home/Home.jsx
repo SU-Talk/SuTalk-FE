@@ -18,9 +18,11 @@ const Home = () => {
   const highlightText = (text) => {
     if (!searchQuery || !text) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
-    return text.split(regex).map((part, index) =>
-      regex.test(part) ? <mark key={index}>{part}</mark> : part
-    );
+    return text
+      .split(regex)
+      .map((part, index) =>
+        regex.test(part) ? <mark key={index}>{part}</mark> : part
+      );
   };
 
   const fetchPosts = async () => {
@@ -37,13 +39,11 @@ const Home = () => {
   };
 
   useEffect(() => {
-  const senderId = localStorage.getItem("senderId");
-  if (!senderId) {
-    window.location.href = "/enter";
-  }
-}, []);
-
-
+    const senderId = localStorage.getItem("senderId");
+    if (!senderId) {
+      window.location.href = "/enter";
+    }
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -104,8 +104,7 @@ const Home = () => {
             className={`filter-button ${
               selectedCategory === category ? "active" : ""
             }`}
-            onClick={() => setSelectedCategory(category)}
-          >
+            onClick={() => setSelectedCategory(category)}>
             {category}
           </button>
         ))}
@@ -113,8 +112,7 @@ const Home = () => {
           <button
             key={option}
             className={`filter-button ${sortOrder === option ? "active" : ""}`}
-            onClick={() => setSortOrder(option)}
-          >
+            onClick={() => setSortOrder(option)}>
             {option}
           </button>
         ))}
@@ -131,25 +129,24 @@ const Home = () => {
             <Link
               to={`/post/${post.itemid}`}
               key={post.itemid}
-              className="home-PostCard"
-            >
+              className="home-PostCard">
               <img src={thumbnail} alt={post.title || "게시물"} />
               <div className="home-PostDetails">
                 <h3>{highlightText(post.title || "제목 없음")}</h3>
                 <div className="post-meta">
                   <span className="post-author">작성자: {post.sellerId}</span>
-                  <span className="post-date">
-                    {new Date(Number(post.regdate)).toLocaleDateString("ko-KR")}
-                  </span>
                 </div>
+                <span className="post-date">
+                  {new Date(Number(post.regdate)).toLocaleDateString("ko-KR")}
+                </span>
                 <p className="post-price">
                   {typeof post.price === "number"
                     ? `가격: ${post.price.toLocaleString()}원`
                     : "가격 없음"}
                 </p>
-                <p className="post-comment">
+                {/* <p className="post-comment">
                   {highlightText(post.description || "설명 없음")}
-                </p>
+                </p> */}
               </div>
             </Link>
           );

@@ -16,7 +16,9 @@ const PostEdit = () => {
     price: initialData?.price || "",
     description: initialData?.description || "",
     location: initialData?.meetLocation || "",
-    images: initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) || [],
+    images:
+      initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) ||
+      [],
     imageFiles: [],
   });
 
@@ -74,20 +76,23 @@ const PostEdit = () => {
         // 수정 요청
         response = await axios.put(
           `http://localhost:8080/api/items/${initialData.itemid}`,
-          requestForm,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
+          requestForm
+          // {
+          //   headers: { "Content-Type": "multipart/form-data" },
+          // }
         );
         alert("게시글이 수정되었습니다!");
       } else {
         // 새 글 등록
-        response = await axios.post("http://localhost:8080/api/items", requestForm, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        response = await axios.post(
+          "http://localhost:8080/api/items",
+          requestForm
+          // {
+          //   headers: { "Content-Type": "multipart/form-data" },
+          // }
+        );
         alert("게시글이 작성되었습니다!");
       }
-
       navigate(`/post/${response.data.itemid}`);
     } catch (error) {
       console.error("❌ 저장 중 에러 발생:", error);
@@ -111,8 +116,7 @@ const PostEdit = () => {
               <img src={img} alt={`미리보기 ${index + 1}`} />
               <button
                 className="delete-image-button"
-                onClick={() => handleDeleteImage(index)}
-              >
+                onClick={() => handleDeleteImage(index)}>
                 ×
               </button>
             </div>
@@ -136,7 +140,9 @@ const PostEdit = () => {
           type="text"
           placeholder="제목"
           value={formData.title}
-          onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
         />
 
         <select
@@ -144,8 +150,7 @@ const PostEdit = () => {
           value={formData.category}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, category: e.target.value }))
-          }
-        >
+          }>
           <option value="" disabled>
             카테고리 선택
           </option>
@@ -178,8 +183,7 @@ const PostEdit = () => {
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
-          }
-        ></textarea>
+          }></textarea>
 
         <input
           type="text"

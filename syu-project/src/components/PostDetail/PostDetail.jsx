@@ -88,7 +88,9 @@ const PostDetail = () => {
   if (loading) return <p>Loading...</p>;
   if (!post) return <p>Post not found</p>;
 
-  const formattedDate = new Date(Number(post.regdate)).toLocaleDateString("ko-KR");
+  const formattedDate = new Date(Number(post.regdate)).toLocaleDateString(
+    "ko-KR"
+  );
 
   return (
     <div className="post-detail-container">
@@ -113,17 +115,17 @@ const PostDetail = () => {
             <button
               className="slider-button left"
               onClick={() =>
-                changeImage((currentImageIndex - 1 + images.length) % images.length)
-              }
-            >
+                changeImage(
+                  (currentImageIndex - 1 + images.length) % images.length
+                )
+              }>
               &lt;
             </button>
             <button
               className="slider-button right"
               onClick={() =>
                 changeImage((currentImageIndex + 1) % images.length)
-              }
-            >
+              }>
               &gt;
             </button>
           </>
@@ -136,8 +138,7 @@ const PostDetail = () => {
             <span
               key={index}
               className={`dot ${index === currentImageIndex ? "active" : ""}`}
-              onClick={() => changeImage(index)}
-            ></span>
+              onClick={() => changeImage(index)}></span>
           ))}
         </div>
       )}
@@ -150,8 +151,7 @@ const PostDetail = () => {
           <span>판매자:</span>
           <span
             className="seller-name"
-            onClick={() => navigate(`/profile/seller/${post.sellerId}`)}
-          >
+            onClick={() => navigate(`/profile/seller/${post.sellerId}`)}>
             {post.sellerName || `test-user-${post.sellerId?.slice(-3)}`}
           </span>
         </div>
@@ -163,9 +163,9 @@ const PostDetail = () => {
           <span>🕒 {formattedDate}</span>
         </div>
 
-        <button className="chat-button" onClick={handleStartChat}>
+        {/* <button className="chat-button" onClick={handleStartChat}>
           💬 채팅하기
-        </button>
+        </button> */}
       </div>
 
       <BottomBar postId={postId} price={post.price} sellerId={post.sellerId} />

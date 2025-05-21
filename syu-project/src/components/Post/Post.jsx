@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Post.css";
 
 const Post = () => {
@@ -22,10 +23,9 @@ const Post = () => {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
-    const newImages = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
+      images: [...prev.images, ...files], // File 객체 저장
     }));
   };
 
@@ -36,14 +36,45 @@ const Post = () => {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.title || !formData.category || !formData.price) {
       alert("필수 항목을 모두 입력해주세요.");
       return;
     }
-    alert("게시글이 작성되었습니다!");
-    console.log("새로운 게시글 데이터:", formData); // 실제로는 API 호출
-    navigate(-1); // 이전 페이지로 이동
+
+    const data = new FormData();
+    data.append(
+      "item",
+      new Blob(
+        [
+          JSON.stringify({
+            title: formData.title,
+            category: formData.category,
+            price: formData.price,
+            description: formData.description,
+            location: formData.location,
+          }),
+        ],
+        { type: "application/json" }
+      )
+    );
+
+    for (let i = 0; i < formData.images.length; i++) {
+      data.append("images", formData.images[i]); // File 객체
+    }
+
+    try {
+      await axios.post("http://localhost:8080/api/items", {
+        method: "POST",
+        body: data,
+      });
+      if (!response.ok) throw new Error("서버 오류");
+      alert("게시글이 작성되었습니다!");
+      navigate(-1);
+    } catch (error) {
+      alert("게시글 작성에 실패했습니다.");
+      console.error(error);
+    }
   };
 
   return (
