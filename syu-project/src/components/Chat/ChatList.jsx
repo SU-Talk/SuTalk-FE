@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "./Chat.css";
 import Nav from "../Nav/Nav";
+import { MoonLoader } from "react-spinners";
+import "./Chat.css"; // 필요시
+
+import "../Loader/Loader.css";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -10,7 +13,6 @@ const ChatList = () => {
 
   const fetchChats = async () => {
     if (!senderId) return;
-
     setLoading(true);
     try {
       const res = await fetch(`/api/chat-rooms?userId=${senderId}`);
@@ -24,19 +26,27 @@ const ChatList = () => {
   };
 
   useEffect(() => {
-    fetchChats(); // 초기 로딩
-    const intervalId = setInterval(fetchChats, 10000); // 🔁 10초마다 갱신
-    return () => clearInterval(intervalId); // 언마운트 시 정리
+    fetchChats();
+    const intervalId = setInterval(fetchChats, 10000);
+    return () => clearInterval(intervalId);
   }, [senderId]);
 
   return (
     <div className="chat-list-container">
-      <header className="chat-header"><h3>채팅</h3></header>
+      {/* 로딩 오버레이 */}
+      {loading && (
+        <div className="loader-overlay">
+          <MoonLoader color="#2670ff" size={40} />
+        </div>
+      )}
 
-      <div className="chat-items">
-        {loading && <p style={{ padding: "1rem" }}>불러오는 중...</p>}
-        {!loading && chats.length === 0 ? (
-          <p style={{ padding: "1rem" }}>채팅방이 없습니다</p>
+      <header className="chat-header">
+        <h3>채팅</h3>
+      </header>
+
+      <div className="chat-items" style={{ minHeight: 200 }}>
+        {chats.length === 0 ? (
+          <p style={{ padding: "1rem" }}></p>
         ) : (
           chats.map((chat, idx) => (
             <Link
@@ -46,15 +56,17 @@ const ChatList = () => {
                 itemId: chat.itemId,
                 sellerId: chat.sellerId,
               }}
-              className="chat-item"
-            >
+              className="chat-item">
               <div className="chat-info">
-                <h3>{chat.buyerUsername} & {chat.sellerUsername}</h3>
+                <h3>
+                  {chat.buyerUsername} & {chat.sellerUsername}
+                </h3>
                 <p>{chat.itemTitle}</p>
               </div>
               <span className="chat-time">
                 {new Date(chat.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit", minute: "2-digit"
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </span>
             </Link>

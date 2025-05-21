@@ -162,10 +162,6 @@ const PostDetail = () => {
           <span>📍 {post.meetLocation}</span>
           <span>🕒 {formattedDate}</span>
         </div>
-
-        {/* <button className="chat-button" onClick={handleStartChat}>
-          💬 채팅하기
-        </button> */}
       </div>
 
       <BottomBar postId={postId} price={post.price} sellerId={post.sellerId} />

@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./Home.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
 import TopBar from "../TopBar/TopBar";
+import { MoonLoader } from "react-spinners";
+import "../Loader/Loader.css";
 
 const Home = () => {
+  const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [sortOrder, setSortOrder] = useState("최신순");
   const [searchParams] = useSearchParams();
@@ -94,6 +96,13 @@ const Home = () => {
 
   return (
     <div className="home-Container">
+      {/* 로딩 오버레이 */}
+      {loading && (
+        <div className="loader-overlay">
+          <MoonLoader color="#2670ff" size={40} />
+        </div>
+      )}
+
       <TopBar />
 
       {/* ✅ 카테고리 + 정렬 버튼 한 줄에 스크롤 */}
@@ -151,11 +160,6 @@ const Home = () => {
             </Link>
           );
         })}
-
-        {loading && <p className="loading-text">불러오는 중...</p>}
-        {!loading && filteredPosts.length === 0 && (
-          <p className="no-results">검색 결과가 없습니다</p>
-        )}
       </div>
 
       <div className="home-Write">

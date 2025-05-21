@@ -25,7 +25,7 @@ import Reviewpage from "./components/Review/Review";
 import ReportPage from "./components/Report/Report";
 import SellerProfile from "./components/Profile/SellerProfile";
 import UserEnter from "./components/UserEnter/UserEnter";
-import Login from "./components/Login/Login"; 
+import Login from "./components/Login/Login";
 
 const LoadingWrapper = () => {
   const navigate = useNavigate();
@@ -44,8 +44,6 @@ const LoadingWrapper = () => {
   return <LoadingPage />;
 };
 
-
-
 const AnimatedRoutes = () => {
   const location = useLocation();
   const nodeRef = useRef(null);
@@ -58,27 +56,44 @@ const AnimatedRoutes = () => {
         nodeRef={nodeRef}
         classNames="fade"
         timeout={0}
-        unmountOnExit
-      >
+        unmountOnExit>
         <div ref={nodeRef}>
           <Routes location={location}>
             <Route path="/" element={<LoadingWrapper />} />
-            <Route path="/login" element={<Login />} /> {/* ✅ 로그인 라우트 추가 */}
+            <Route path="/login" element={<Login />} />{" "}
+            {/* ✅ 로그인 라우트 추가 */}
             <Route path="/enter" element={<UserEnter />} /> {/* ✅ 회원가입 */}
             <Route path="/home" element={<HomePage />} />
             <Route path="/chat/:chatRoomId" element={<ChatRoom />} />
             <Route path="/chatlist" element={<ChatListPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/profile" element={<ProfilePage nickname={nickname} />} />
-            <Route path="/profile/edit" element={<ProfileEditPage nickname={nickname} setNickname={setNickname} />} />
+            <Route
+              path="/profile"
+              element={<ProfilePage nickname={nickname} />}
+            />
+            <Route
+              path="/profile/edit"
+              element={
+                <ProfileEditPage
+                  nickname={nickname}
+                  setNickname={setNickname}
+                />
+              }
+            />
             <Route path="/profile/favorites" element={<FavoritesPage />} />
-            <Route path="/profile/sales-history" element={<SalesHistoryPage />} />
+            <Route
+              path="/profile/sales-history"
+              element={<SalesHistoryPage />}
+            />
             <Route path="/review" element={<Reviewpage />} />
             <Route path="/report" element={<ReportPage />} />
-            <Route path="/post" element={<PostEditPage />} />
+            <Route path="/post" element={<PostPage />} />
             <Route path="/post/:postId" element={<PostDetailPage />} />
             <Route path="/post/:postId/edit" element={<PostEditPage />} />
-            <Route path="/profile/seller/:sellerId" element={<SellerProfile />} />
+            <Route
+              path="/profile/seller/:sellerId"
+              element={<SellerProfile />}
+            />
           </Routes>
         </div>
       </CSSTransition>
