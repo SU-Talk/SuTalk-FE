@@ -26,6 +26,7 @@ const ChatRoom = () => {
   const senderId = localStorage.getItem("senderId");
   const isBuyer = senderId && senderId !== chatSellerId;
 
+  // ✅ 1. fallback: 채팅방 정보 조회
   useEffect(() => {
     const fetchChatRoomDetails = async () => {
       try {
@@ -44,7 +45,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     const fetchTransactionId = async () => {
-      if (!itemId || !senderId || !chatSellerId || !buyerId) return;
+      if (!itemId || !senderId) return;
       try {
         const res = await axios.get(`/transactions/item/${itemId}/user/${senderId}`);
         setTransactionId(res.data.transactionId);
@@ -53,8 +54,9 @@ const ChatRoom = () => {
       }
     };
     fetchTransactionId();
-  }, [itemId, senderId, chatSellerId, buyerId]);
+  }, [itemId, senderId]);
 
+  // ✅ 3. 채팅 메시지 조회 + WebSocket 연결
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -72,19 +74,20 @@ const ChatRoom = () => {
       onConnect: () => {
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const data = JSON.parse(message.body);
-          setMessages(prev => [...prev, data]);
+          setMessages((prev) => [...prev, data]);
         });
         setStompClient(client);
       },
       onStompError: (frame) => {
         console.error("❌ STOMP 오류:", frame);
-      }
+      },
     });
 
     client.activate();
     return () => client.deactivate();
   }, [chatRoomId]);
 
+  // ✅ 4. 아이템 상태 조회 (거래 완료 여부 확인)
   useEffect(() => {
     const fetchItemStatus = async () => {
       if (!itemId) return;
@@ -101,6 +104,7 @@ const ChatRoom = () => {
     fetchItemStatus();
   }, [itemId]);
 
+  // ✅ 거래 완료
   const handleCompleteDeal = async () => {
     try {
       await axios.post(`/items/${itemId}/complete?chatRoomId=${chatRoomId}`);
@@ -112,6 +116,7 @@ const ChatRoom = () => {
     }
   };
 
+  // ✅ 후기 작성
   const handleReviewWrite = () => {
     if (!transactionId) {
       return alert("리뷰 대상 정보가 없습니다.");
@@ -122,15 +127,16 @@ const ChatRoom = () => {
         itemId,
         buyerId: senderId,
         sellerId: chatSellerId,
-        transactionId
-      }
+        transactionId,
+      },
     });
   };
 
+  // ✅ 채팅방 나가기
   const handleLeaveChat = async () => {
     if (window.confirm("정말 채팅방을 나가시겠습니까?")) {
       try {
-        await axios.delete(`/chat-rooms/${chatRoomId}`);
+        await axios.delete(`/api/chat-rooms/${chatRoomId}`);
         alert("채팅방이 삭제되었습니다.");
         navigate("/chatlist");
       } catch (err) {
@@ -139,6 +145,7 @@ const ChatRoom = () => {
     }
   };
 
+  // ✅ 상대방 프로필 보기
   const handleViewProfile = () => {
     const opponentId = senderId === chatSellerId ? buyerId : chatSellerId;
     if (!opponentId) {
@@ -148,6 +155,7 @@ const ChatRoom = () => {
     navigate(`/profile/seller/${opponentId}`);
   };
 
+  // ✅ 채팅목록으로
   const handleBack = () => {
     navigate("/chatlist");
   };

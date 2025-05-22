@@ -1,49 +1,96 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Post.css";
 
 const Post = () => {
   const navigate = useNavigate();
 
-  // 상태 초기화 (게시글 작성 전용)
   const [formData, setFormData] = useState({
     title: "",
     category: "",
     price: "",
     description: "",
     location: "",
-    images: [],
+    images: [], // File 객체 배열
+    previews: [], // Object URL 배열
   });
 
-  // 이미지 업로드 핸들러 (Object URL 생성)
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 5) {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
-    const newImages = files.map((file) => URL.createObjectURL(file));
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
+      images: [...prev.images, ...files],
+      previews: [...prev.previews, ...newPreviews],
     }));
   };
 
-  // 이미지 삭제 핸들러
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, images: newImages }));
+    const newPreviews = formData.previews.filter((_, i) => i !== index);
+
+    setFormData((prev) => ({
+      ...prev,
+      images: newImages,
+      previews: newPreviews,
+    }));
   };
 
-  // 폼 제출 핸들러
-  const handleSubmit = () => {
-    if (!formData.title || !formData.category || !formData.price) {
+  const handleSubmit = async () => {
+    const { title, category, price } = formData;
+    if (!title || !category || !price) {
       alert("필수 항목을 모두 입력해주세요.");
       return;
     }
-    alert("게시글이 작성되었습니다!");
-    console.log("새로운 게시글 데이터:", formData); // 실제로는 API 호출
-    navigate(-1); // 이전 페이지로 이동
+
+    const senderId = localStorage.getItem("senderId");
+    if (!senderId) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
+
+    const data = new FormData();
+    data.append(
+      "item",
+      new Blob(
+        [
+          JSON.stringify({
+            title: formData.title,
+            category: formData.category,
+            price: formData.price,
+            description: formData.description,
+            meetLocation: formData.location,
+            sellerId: senderId,
+          }),
+        ],
+        { type: "application/json" }
+      )
+    );
+
+    formData.images.forEach((file) => data.append("images", file));
+
+    try {
+      const response = await axios.post("/api/items", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status !== 200) throw new Error("서버 오류");
+
+      alert("게시글이 작성되었습니다!");
+      navigate(-1);
+    } catch (error) {
+      console.error("❌ 게시글 작성 실패:", error);
+      alert("게시글 작성에 실패했습니다.");
+    }
   };
 
   return (
@@ -55,22 +102,24 @@ const Post = () => {
         <h3>글쓰기</h3>
       </header>
 
-      {/* 이미지 업로드 섹션 */}
       <div className="image-upload">
         <div className="image-preview">
-          {formData.images.map((img, index) => (
+          {formData.previews.map((preview, index) => (
             <div key={index} className="image-item">
-              <img src={img} alt={`미리보기 ${index + 1}`} />
+              <img loading="lazy" src={preview} alt={`미리보기 ${index + 1}`} />
               <button
                 className="delete-image-button"
-                onClick={() => handleDeleteImage(index)}>
+                onClick={() => handleDeleteImage(index)}
+              >
                 ×
               </button>
             </div>
           ))}
-          <label htmlFor="image-input" className="image-label">
-            <span>📷</span> {formData.images.length}/5
-          </label>
+          {formData.images.length < 5 && (
+            <label htmlFor="image-input" className="image-label">
+              <span>📷</span> {formData.images.length}/5
+            </label>
+          )}
         </div>
         <input
           type="file"
@@ -82,7 +131,6 @@ const Post = () => {
         />
       </div>
 
-      {/* 게시글 작성 폼 */}
       <form className="post-form">
         <input
           type="text"
@@ -98,7 +146,8 @@ const Post = () => {
           value={formData.category}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, category: e.target.value }))
-          }>
+          }
+        >
           <option value="" disabled>
             카테고리 선택
           </option>
@@ -118,7 +167,7 @@ const Post = () => {
         </select>
 
         <input
-          type="text"
+          type="number"
           placeholder="가격 (원)"
           value={formData.price}
           onChange={(e) =>
@@ -131,7 +180,8 @@ const Post = () => {
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
-          }></textarea>
+          }
+        ></textarea>
 
         <input
           type="text"
@@ -142,7 +192,11 @@ const Post = () => {
           }
         />
 
-        <button type="button" className="submit-button" onClick={handleSubmit}>
+        <button
+          type="button"
+          className="submit-button"
+          onClick={handleSubmit}
+        >
           작성 완료
         </button>
       </form>

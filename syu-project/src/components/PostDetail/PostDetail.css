@@ -34,7 +34,6 @@
   z-index: 1;
 }
 
-
 .fade-in {
   opacity: 1;
   z-index: 2;
@@ -146,6 +145,8 @@
   color: #444;
   margin: 20px 0 12px;
   white-space: pre-wrap;
+  word-break: break-all; /* 긴 단어도 자동 줄바꿈 */
+  overflow-wrap: break-word;
 }
 
 /* 장소 + 날짜 */
@@ -177,3 +178,4 @@
 .chat-button:hover {
   background-color: #1c5bd6;
 }
+

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "@/api/axiosInstance";
+import axios from "axios";
 import "./SellerReviewList.css";
 
 const SellerReviewList = ({ sellerId }) => {
@@ -24,11 +24,12 @@ const SellerReviewList = ({ sellerId }) => {
         reviews.map((review, idx) => (
           <div key={idx} className="review-box">
             <div className="review-header">
-              <span>👤 {review.reviewerNickname}</span>
+              <span>👤 {review.reviewerName}</span>
               <span className="review-rating">⭐ {review.rating}</span>
             </div>
             <p className="review-item">📦 {review.itemTitle}</p>
             <p className="review-comment">💬 {review.comment}</p>
+            
             <span className="review-date">
               {new Date(review.createdAt).toLocaleDateString()}
             </span>

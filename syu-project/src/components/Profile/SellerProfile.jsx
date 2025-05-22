@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "@/api/axiosInstance";
 import SellerReviewList from "../Review/SellerReviewList";
-import "./Profile.css";
-import { FaBars, FaArrowLeft } from "react-icons/fa"; // ✅ 중복 없이 정리
+import "./profile.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { FaBars, FaArrowLeft } from "react-icons/fa";
+import { MoonLoader } from "react-spinners";
+import "../Loader/Loader.css"; // ✅ Loader 스타일 import
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
@@ -11,6 +15,8 @@ const SellerProfile = () => {
   const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ 로딩 상태
+
   const reporterId = localStorage.getItem("senderId");
 
   const handleGoBack = () => {
@@ -40,11 +46,23 @@ const SellerProfile = () => {
       }
     };
 
-    fetchProfile();
-    fetchPosts();
+    const loadAll = async () => {
+      await Promise.all([fetchProfile(), fetchPosts()]);
+      setLoading(false); // ✅ 데이터 다 불러오면 로딩 false
+    };
+
+    loadAll();
   }, [sellerId]);
 
-  if (!profile) return <p>로딩 중...</p>;
+  if (loading) {
+    return (
+      <div className="loader-overlay">
+        <MoonLoader color="#2670ff" size={40} />
+      </div>
+    );
+  }
+
+  if (!profile) return <p>판매자 정보를 찾을 수 없습니다.</p>;
 
   return (
     <div className="profile-container">

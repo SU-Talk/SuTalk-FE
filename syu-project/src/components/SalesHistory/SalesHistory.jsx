@@ -7,6 +7,14 @@ const SalesHistory = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("판매중");
   const [salesData, setSalesData] = useState({ 판매중: [], 예약중: [], 거래완료: [] });
+  const formatDate = (regdate) => {
+  if (!regdate) return "";
+  const timestamp = Number(regdate);
+  if (isNaN(timestamp)) return "";
+  return new Date(timestamp).toLocaleDateString("ko-KR");
+};
+
+
 
   const fetchSalesData = async () => {
     const userId = localStorage.getItem("senderId");
@@ -39,19 +47,25 @@ const SalesHistory = () => {
   const handleDelete = async (itemid) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
-      await axios.delete(`/items/${itemid}`);
+      const response = await fetch(`/api/items/${itemid}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("삭제 요청 실패");
       alert("삭제되었습니다.");
       fetchSalesData();
     } catch (error) {
       console.error("❌ 삭제 실패:", error);
-      alert("삭제에 실패했습니다.");
+      alert("삭제에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
   const handleStatusChange = async (itemid, newStatus) => {
     try {
-      await axios.patch(`/items/${itemid}/status`, { status: newStatus });
-      fetchSalesData();
+      const response = await fetch(`/api/items/${itemid}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) throw new Error("상태 변경 실패");
+      fetchSalesData(); // 상태 변경 후 데이터 새로고침
     } catch (error) {
       console.error("❌ 상태 변경 실패:", error);
     }
@@ -82,18 +96,14 @@ const SalesHistory = () => {
         {(salesData[activeTab] || []).map((item) => (
           <div key={item.itemid} className="sales-item">
             <img
-              src={
-                item.itemImages?.length > 0
-                  ? `${import.meta.env.VITE_API_BASE_URL}${item.itemImages[0]}`
-                  : "/assets/default-image.png"
-              }
+              src={item.itemImages?.length > 0 ? `http://localhost:8080${item.itemImages[0]}` : "/assets/default-image.png"}
               alt={item.title}
               className="sales-image"
             />
             <div className="sales-details">
-              <h3>{item.title}</h3>
-              <p>{item.regdate}</p>
-              <p>{item.price.toLocaleString()}원</p>
+              <h3 className="item-title">{item.title}</h3>
+              <p className="item-price">{item.price.toLocaleString()}원</p>
+              <p className="item-date">{formatDate(item.regdate)}</p>
 
               {activeTab === "판매중" && (
                 <>
