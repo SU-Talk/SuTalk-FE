@@ -140,7 +140,7 @@ const ChatRoom = () => {
     if (window.confirm("정말 채팅방을 나가시겠습니까?")) {
       try {
         await axios.delete(`/api/chat-rooms/${chatRoomId}`);
-        alert("채팅방이 삭제되었습니다.");
+        alert("채팅방을 나갔습니다.");
         navigate("/chatlist");
       } catch (err) {
         console.error("❌ 채팅방 삭제 실패:", err);

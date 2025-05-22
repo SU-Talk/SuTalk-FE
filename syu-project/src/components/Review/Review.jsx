@@ -78,7 +78,7 @@ const Review = () => {
 
       <div className="review-content">
         <div className="profile-avatar">
-          <img src="/assets/수야.png" alt="프로필 이미지" className="profile-image" />
+          <img loading="lazy" src="/assets/수야.png" alt="프로필 이미지" className="profile-image" />
         </div>
         <h3 className="profile-name">{sellerDisplayName}</h3>
 

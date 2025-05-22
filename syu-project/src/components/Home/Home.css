@@ -1,8 +1,10 @@
+/* 기본 초기화 */
 * {
   margin: 0;
   box-sizing: border-box;
 }
 
+/* 스크롤 숨김 */
 * {
   scrollbar-width: none; /* Firefox */
 }
@@ -10,11 +12,13 @@
   display: none; /* Chrome, Safari, Edge */
 }
 
+/* 메인 컨테이너 */
 .home-Container {
   position: relative;
   padding: 30px 0 50px;
 }
 
+/* 카테고리 필터 영역 */
 .filter-scroll-row {
   display: flex;
   flex-wrap: nowrap;
@@ -24,7 +28,6 @@
   margin-top: 20px;
   scrollbar-width: none;
 }
-
 .filter-scroll-row::-webkit-scrollbar {
   display: none;
 }
@@ -50,6 +53,7 @@
   color: white;
 }
 
+/* 게시글 목록 영역 */
 .home-Posts {
   margin-top: 10px;
 }
@@ -106,22 +110,34 @@
   word-break: break-word;
 }
 
+/* 글쓰기 버튼 (Floating Action Button) */
 .home-Write {
   position: fixed;
   bottom: 60px;
-  right: 5px;
-  font-size: 1.5rem;
-  color: #2670ff;
-  background-color: #fff;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  right: 16px;
+  z-index: 1000;
+}
+
+.home-Write a {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 56px;
+  height: 56px;
+  background-color: white; /* SYU 색상 */
+  color: #2670ff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 22px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 
+.home-Write a:hover {
+  background-color: #1f5ad6; /* hover 시 더 진한 파랑 */
+}
+
+/* 검색어 하이라이팅 */
 .highlight {
   background-color: yellow;
 }

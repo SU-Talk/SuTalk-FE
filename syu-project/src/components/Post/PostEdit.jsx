@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./Post.css";
@@ -7,49 +7,38 @@ const PostEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { postData: initialData } = location.state || {};
-
   const isEditMode = !!initialData;
 
+  const [imageFiles, setImageFiles] = useState([]);
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
     category: initialData?.category || "",
     price: initialData?.price || "",
     description: initialData?.description || "",
     location: initialData?.meetLocation || "",
-    images:
-      initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) ||
-      [],
-    imageFiles: [], // 새로 업로드한 파일 객체
+    images: initialData?.itemImages?.map((img) =>`/uploads/thumbnails/thumb_${img.split("/").pop()}`) || [],
   });
 
-  // ✅ 이미지 업로드 핸들러
+  const previews = useMemo(() => {
+    return [...formData.images, ...imageFiles.map(file => URL.createObjectURL(file))];
+  }, [formData.images, imageFiles]);
+
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length + formData.images.length > 5) {
+    if (files.length + previews.length > 5) {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
     }
-
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...previews],
-      imageFiles: [...prev.imageFiles, ...files],
-    }));
+    setImageFiles((prev) => [...prev, ...files]);
   };
 
-  // ✅ 이미지 삭제 핸들러 (기존 + 새 이미지 모두 대응)
   const handleDeleteImage = (index) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
-    const newImageFiles = formData.imageFiles.filter((_, i) => i !== index);
-    setFormData((prev) => ({
-      ...prev,
-      images: newImages,
-      imageFiles: newImageFiles,
-    }));
+    const newImages = previews.filter((_, i) => i !== index);
+    const newImageFiles = imageFiles.filter((_, i) => i !== index - formData.images.length);
+    setFormData((prev) => ({ ...prev, images: newImages.slice(0, formData.images.length) }));
+    setImageFiles(newImageFiles);
   };
 
-  // ✅ 등록 or 수정 요청
   const handleSubmit = async () => {
     const sellerId = localStorage.getItem("senderId");
     if (!sellerId) {
@@ -67,13 +56,8 @@ const PostEdit = () => {
     };
 
     const requestForm = new FormData();
-    requestForm.append(
-      "item",
-      new Blob([JSON.stringify(itemData)], {
-        type: "application/json",
-      })
-    );
-    formData.imageFiles.forEach((file) => requestForm.append("images", file));
+    requestForm.append("item", new Blob([JSON.stringify(itemData)], { type: "application/json" }));
+    imageFiles.forEach((file) => requestForm.append("images", file));
 
     try {
       let response;
@@ -81,9 +65,7 @@ const PostEdit = () => {
         response = await axios.put(
           `http://localhost:8080/api/items/${initialData.itemid}`,
           requestForm,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
         alert("게시글이 수정되었습니다!");
       } else {
@@ -109,23 +91,17 @@ const PostEdit = () => {
         <h3>{isEditMode ? "게시글 수정" : "글쓰기"}</h3>
       </header>
 
-      {/* ✅ 이미지 업로드 영역 */}
       <div className="image-upload">
         <div className="image-preview">
-          {formData.images.map((img, index) => (
+          {previews.map((img, index) => (
             <div key={index} className="image-item">
-              <img src={img} alt={`미리보기 ${index + 1}`} />
-              <button
-                className="delete-image-button"
-                onClick={() => handleDeleteImage(index)}
-              >
-                ×
-              </button>
+              <img loading="lazy" src={img} alt={`미리보기 ${index + 1}`} />
+              <button className="delete-image-button" onClick={() => handleDeleteImage(index)}>×</button>
             </div>
           ))}
-          {formData.images.length < 5 && (
+          {previews.length < 5 && (
             <label htmlFor="image-input" className="image-label">
-              <span>📷</span> {formData.images.length}/5
+              <span>📷</span> {previews.length}/5
             </label>
           )}
         </div>
@@ -139,71 +115,17 @@ const PostEdit = () => {
         />
       </div>
 
-      {/* ✅ 입력 폼 영역 */}
       <form className="post-form">
-        <input
-          type="text"
-          placeholder="제목"
-          value={formData.title}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, title: e.target.value }))
-          }
-        />
-
-        <select
-          className="category-select"
-          value={formData.category}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, category: e.target.value }))
-          }
-        >
-          <option value="" disabled>
-            카테고리 선택
-          </option>
-          {[
-            "전자제품",
-            "가구",
-            "의류",
-            "도서",
-            "생활용품",
-            "스포츠/레저",
-            "기타",
-          ].map((cat, index) => (
-            <option key={index} value={cat}>
-              {cat}
-            </option>
+        <input type="text" placeholder="제목" value={formData.title} onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))} />
+        <select className="category-select" value={formData.category} onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}>
+          <option value="" disabled>카테고리 선택</option>
+          {["전자제품", "가구", "의류", "도서", "생활용품", "스포츠/레저", "기타"].map((cat, i) => (
+            <option key={i} value={cat}>{cat}</option>
           ))}
         </select>
-
-        <input
-          type="number"
-          placeholder="가격 (원)"
-          value={formData.price}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, price: e.target.value }))
-          }
-        />
-
-        <textarea
-          placeholder="자세한 설명"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              description: e.target.value,
-            }))
-          }
-        ></textarea>
-
-        <input
-          type="text"
-          placeholder="거래 희망 장소"
-          value={formData.location}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, location: e.target.value }))
-          }
-        />
-
+        <input type="number" placeholder="가격 (원)" value={formData.price} onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))} />
+        <textarea placeholder="자세한 설명" value={formData.description} onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}></textarea>
+        <input type="text" placeholder="거래 희망 장소" value={formData.location} onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))} />
         <button type="button" className="submit-button" onClick={handleSubmit}>
           {isEditMode ? "수정 완료" : "작성 완료"}
         </button>

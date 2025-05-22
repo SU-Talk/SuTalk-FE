@@ -13,13 +13,11 @@ const Post = () => {
     description: "",
     location: "",
     images: [], // File 객체 배열
-    previews: [], // 미리보기용 Object URL 배열
+    previews: [], // Object URL 배열
   });
 
-  // ✅ 이미지 업로드 핸들러
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-
     if (files.length + formData.images.length > 5) {
       alert("최대 5개의 이미지만 업로드할 수 있습니다.");
       return;
@@ -34,7 +32,6 @@ const Post = () => {
     }));
   };
 
-  // ✅ 이미지 삭제 핸들러
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
     const newPreviews = formData.previews.filter((_, i) => i !== index);
@@ -46,7 +43,6 @@ const Post = () => {
     }));
   };
 
-  // ✅ 게시글 제출
   const handleSubmit = async () => {
     const { title, category, price } = formData;
     if (!title || !category || !price) {
@@ -106,12 +102,11 @@ const Post = () => {
         <h3>글쓰기</h3>
       </header>
 
-      {/* ✅ 이미지 업로드 섹션 */}
       <div className="image-upload">
         <div className="image-preview">
           {formData.previews.map((preview, index) => (
             <div key={index} className="image-item">
-              <img src={preview} alt={`미리보기 ${index + 1}`} />
+              <img loading="lazy" src={preview} alt={`미리보기 ${index + 1}`} />
               <button
                 className="delete-image-button"
                 onClick={() => handleDeleteImage(index)}
@@ -136,7 +131,6 @@ const Post = () => {
         />
       </div>
 
-      {/* ✅ 게시글 폼 입력 */}
       <form className="post-form">
         <input
           type="text"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./SellerReviewList.css"; // profile 스타일 통일용
+import "./SellerReviewList.css";
 
 const SellerReviewList = ({ sellerId }) => {
   const [reviews, setReviews] = useState([]);
@@ -24,14 +24,12 @@ const SellerReviewList = ({ sellerId }) => {
         reviews.map((review, idx) => (
           <div key={idx} className="review-box">
             <div className="review-header">
-              <span>👤 {review.reviewerNickname}</span>
+              <span>👤 {review.reviewerName}</span>
               <span className="review-rating">⭐ {review.rating}</span>
             </div>
-
-            {/* 어떤 상품에 남긴 후기인지 */}
             <p className="review-item">📦 {review.itemTitle}</p>
-
             <p className="review-comment">💬 {review.comment}</p>
+            
             <span className="review-date">
               {new Date(review.createdAt).toLocaleDateString()}
             </span>

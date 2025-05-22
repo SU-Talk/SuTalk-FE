@@ -83,7 +83,11 @@ const SalesHistory = () => {
         {(salesData[activeTab] || []).map((item) => (
           <div key={item.itemid} className="sales-item">
             <img
-              src={item.itemImages?.length > 0 ? `http://localhost:8080${item.itemImages[0]}` : "/assets/default-image.png"}
+              src={
+                item.itemImages?.length > 0
+                  ? `/uploads/thumbnails/thumb_${item.itemImages[0].split("/").pop()}`
+                  : "/assets/default-image.png"
+              }
               alt={item.title}
               className="sales-image"
             />
