@@ -16,10 +16,13 @@ const PostEdit = () => {
     price: initialData?.price || "",
     description: initialData?.description || "",
     location: initialData?.meetLocation || "",
-    images: initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) || [],
-    imageFiles: [],
+    images:
+      initialData?.itemImages?.map((img) => `http://localhost:8080${img}`) ||
+      [],
+    imageFiles: [], // 새로 업로드한 파일 객체
   });
 
+  // ✅ 이미지 업로드 핸들러
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + formData.images.length > 5) {
@@ -27,14 +30,15 @@ const PostEdit = () => {
       return;
     }
 
-    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    const previews = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...previewUrls],
+      images: [...prev.images, ...previews],
       imageFiles: [...prev.imageFiles, ...files],
     }));
   };
 
+  // ✅ 이미지 삭제 핸들러 (기존 + 새 이미지 모두 대응)
   const handleDeleteImage = (index) => {
     const newImages = formData.images.filter((_, i) => i !== index);
     const newImageFiles = formData.imageFiles.filter((_, i) => i !== index);
@@ -45,6 +49,7 @@ const PostEdit = () => {
     }));
   };
 
+  // ✅ 등록 or 수정 요청
   const handleSubmit = async () => {
     const sellerId = localStorage.getItem("senderId");
     if (!sellerId) {
@@ -64,14 +69,15 @@ const PostEdit = () => {
     const requestForm = new FormData();
     requestForm.append(
       "item",
-      new Blob([JSON.stringify(itemData)], { type: "application/json" })
+      new Blob([JSON.stringify(itemData)], {
+        type: "application/json",
+      })
     );
     formData.imageFiles.forEach((file) => requestForm.append("images", file));
 
     try {
       let response;
       if (isEditMode) {
-        // 수정 요청
         response = await axios.put(
           `http://localhost:8080/api/items/${initialData.itemid}`,
           requestForm,
@@ -81,8 +87,7 @@ const PostEdit = () => {
         );
         alert("게시글이 수정되었습니다!");
       } else {
-        // 새 글 등록
-        response = await axios.post("http://localhost:8080/api/items", requestForm, {
+        response = await axios.post("/api/items", requestForm, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("게시글이 작성되었습니다!");
@@ -104,6 +109,7 @@ const PostEdit = () => {
         <h3>{isEditMode ? "게시글 수정" : "글쓰기"}</h3>
       </header>
 
+      {/* ✅ 이미지 업로드 영역 */}
       <div className="image-upload">
         <div className="image-preview">
           {formData.images.map((img, index) => (
@@ -117,9 +123,11 @@ const PostEdit = () => {
               </button>
             </div>
           ))}
-          <label htmlFor="image-input" className="image-label">
-            <span>📷</span> {formData.images.length}/5
-          </label>
+          {formData.images.length < 5 && (
+            <label htmlFor="image-input" className="image-label">
+              <span>📷</span> {formData.images.length}/5
+            </label>
+          )}
         </div>
         <input
           type="file"
@@ -131,12 +139,15 @@ const PostEdit = () => {
         />
       </div>
 
+      {/* ✅ 입력 폼 영역 */}
       <form className="post-form">
         <input
           type="text"
           placeholder="제목"
           value={formData.title}
-          onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
         />
 
         <select
@@ -165,7 +176,7 @@ const PostEdit = () => {
         </select>
 
         <input
-          type="text"
+          type="number"
           placeholder="가격 (원)"
           value={formData.price}
           onChange={(e) =>
@@ -177,7 +188,10 @@ const PostEdit = () => {
           placeholder="자세한 설명"
           value={formData.description}
           onChange={(e) =>
-            setFormData((prev) => ({ ...prev, description: e.target.value }))
+            setFormData((prev) => ({
+              ...prev,
+              description: e.target.value,
+            }))
           }
         ></textarea>
 

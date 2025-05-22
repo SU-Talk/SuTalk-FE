@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
 import TopBar from "../TopBar/TopBar";
+import { MoonLoader } from "react-spinners";
+import "../Loader/Loader.css";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -37,13 +39,11 @@ const Home = () => {
   };
 
   useEffect(() => {
-  const senderId = localStorage.getItem("senderId");
-  if (!senderId) {
-    window.location.href = "/enter";
-  }
-}, []);
-
-
+    const senderId = localStorage.getItem("senderId");
+    if (!senderId) {
+      window.location.href = "/enter";
+    }
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -71,7 +71,7 @@ const Home = () => {
     }
 
     if (sortOrder === "최신순") {
-      result.sort((a, b) => b.regdate - a.regdate);
+      result.sort((a, b) => Number(b.regdate) - Number(a.regdate));
     } else if (sortOrder === "가격↑") {
       result.sort((a, b) => a.price - b.price);
     } else if (sortOrder === "가격↓") {
@@ -94,6 +94,13 @@ const Home = () => {
 
   return (
     <div className="home-Container">
+      {/* ✅ 로딩 오버레이 */}
+      {loading && (
+        <div className="loader-overlay">
+          <MoonLoader color="#2670ff" size={40} />
+        </div>
+      )}
+
       <TopBar />
 
       {/* ✅ 카테고리 + 정렬 버튼 한 줄에 스크롤 */}
@@ -155,7 +162,6 @@ const Home = () => {
           );
         })}
 
-        {loading && <p className="loading-text">불러오는 중...</p>}
         {!loading && filteredPosts.length === 0 && (
           <p className="no-results">검색 결과가 없습니다</p>
         )}

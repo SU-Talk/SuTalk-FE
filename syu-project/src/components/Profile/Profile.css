@@ -54,6 +54,10 @@
   cursor: pointer;
 }
 
+a {
+  text-decoration: none;
+}
+
 .edit-profile-button:hover {
   background-color: #d0efff;
 }
@@ -186,4 +190,3 @@
 .profile-info {
   margin-top: 70px;
 }
-

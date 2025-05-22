@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "./Chat.css";
 import Nav from "../Nav/Nav";
+import { MoonLoader } from "react-spinners";
+import "./Chat.css";
+import "../Loader/Loader.css";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -31,10 +33,18 @@ const ChatList = () => {
 
   return (
     <div className="chat-list-container">
-      <header className="chat-header"><h3>채팅</h3></header>
+      {/* ✅ 로딩 오버레이 추가 */}
+      {loading && (
+        <div className="loader-overlay">
+          <MoonLoader color="#2670ff" size={40} />
+        </div>
+      )}
 
-      <div className="chat-items">
-        {loading && <p style={{ padding: "1rem" }}>불러오는 중...</p>}
+      <header className="chat-header">
+        <h3>채팅</h3>
+      </header>
+
+      <div className="chat-items" style={{ minHeight: 200 }}>
         {!loading && chats.length === 0 ? (
           <p style={{ padding: "1rem" }}>채팅방이 없습니다</p>
         ) : (
@@ -54,7 +64,8 @@ const ChatList = () => {
               </div>
               <span className="chat-time">
                 {new Date(chat.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit", minute: "2-digit"
+                  hour: "2-digit",
+                  minute: "2-digit"
                 })}
               </span>
             </Link>
