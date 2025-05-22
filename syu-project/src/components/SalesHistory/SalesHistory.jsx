@@ -6,6 +6,14 @@ const SalesHistory = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("판매중");
   const [salesData, setSalesData] = useState({ 판매중: [], 예약중: [], 거래완료: [] });
+  const formatDate = (regdate) => {
+  if (!regdate) return "";
+  const timestamp = Number(regdate);
+  if (isNaN(timestamp)) return "";
+  return new Date(timestamp).toLocaleDateString("ko-KR");
+};
+
+
 
   const fetchSalesData = async () => {
     const userId = localStorage.getItem("senderId");
@@ -35,22 +43,17 @@ const SalesHistory = () => {
   };
 
   const handleDelete = async (itemid) => {
-  if (!window.confirm("정말 삭제하시겠습니까?")) return;
-
-  try {
-    const response = await fetch(`/api/items/${itemid}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) throw new Error("삭제 요청 실패");
-
-    alert("삭제되었습니다.");
-    fetchSalesData(); // 갱신
-  } catch (error) {
-    console.error("❌ 삭제 실패:", error);
-    alert("삭제에 실패했습니다. 다시 시도해주세요.");
-  }
-};
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    try {
+      const response = await fetch(`/api/items/${itemid}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("삭제 요청 실패");
+      alert("삭제되었습니다.");
+      fetchSalesData();
+    } catch (error) {
+      console.error("❌ 삭제 실패:", error);
+      alert("삭제에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
 
   const handleStatusChange = async (itemid, newStatus) => {
     try {
@@ -60,7 +63,7 @@ const SalesHistory = () => {
         body: JSON.stringify({ status: newStatus }),
       });
       if (!response.ok) throw new Error("상태 변경 실패");
-      fetchSalesData(); // 상태 변경 후 데이터 새로고침
+      fetchSalesData();
     } catch (error) {
       console.error("상태 변경 실패:", error);
     }
@@ -74,9 +77,15 @@ const SalesHistory = () => {
       </header>
 
       <div className="tabs">
-        <button className={`tab-button ${activeTab === "판매중" ? "active" : ""}`} onClick={() => setActiveTab("판매중")}>판매중</button>
-        <button className={`tab-button ${activeTab === "예약중" ? "active" : ""}`} onClick={() => setActiveTab("예약중")}>예약중</button>
-        <button className={`tab-button ${activeTab === "거래완료" ? "active" : ""}`} onClick={() => setActiveTab("거래완료")}>거래완료</button>
+        {["판매중", "예약중", "거래완료"].map((tab) => (
+          <button
+            key={tab}
+            className={`tab-button ${activeTab === tab ? "active" : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       <div className="sales-list">
@@ -92,9 +101,9 @@ const SalesHistory = () => {
               className="sales-image"
             />
             <div className="sales-details">
-              <h3>{item.title}</h3>
-              <p>{item.regdate}</p>
-              <p>{item.price.toLocaleString()}원</p>
+              <h3 className="item-title">{item.title}</h3>
+              <p className="item-price">{item.price.toLocaleString()}원</p>
+              <p className="item-date">{formatDate(item.regdate)}</p>
 
               {activeTab === "판매중" && (
                 <>
@@ -115,8 +124,6 @@ const SalesHistory = () => {
                   <button onClick={() => handleStatusChange(item.itemid, "거래완료")}>거래완료</button>
                 </div>
               )}
-
-              {/* 거래완료 탭에서는 후기 남기기 버튼 제거 */}
             </div>
           </div>
         ))}
