@@ -10,6 +10,8 @@ const BottomBar = ({ postId, price, sellerId }) => {
   const [likeCount, setLikeCount] = useState(0);
   const navigate = useNavigate();
   const senderId = localStorage.getItem("senderId");
+  const [isProcessing, setIsProcessing] = useState(false);
+
 
   // 👉 좋아요 초기화
   useEffect(() => {
@@ -39,20 +41,32 @@ const BottomBar = ({ postId, price, sellerId }) => {
 
   // 👉 좋아요 토글
   const handleFavoriteClick = async () => {
-    try {
-      if (isFavorite) {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
-        setIsFavorite(false);
-        setLikeCount((prev) => prev - 1);
-      } else {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
-        setIsFavorite(true);
-        setLikeCount((prev) => prev + 1);
-      }
-    } catch (err) {
-      console.error("❌ 좋아요 토글 실패:", err);
+  if (isProcessing) return;
+  setIsProcessing(true);
+
+  try {
+    if (isFavorite) {
+      const res = await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("좋아요 취소 실패");
+      setIsFavorite(false);
+      setLikeCount((prev) => Math.max(prev - 1, 0)); // 마이너스 방지
+    } else {
+      const res = await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("좋아요 등록 실패");
+      setIsFavorite(true);
+      setLikeCount((prev) => prev + 1);
     }
-  };
+  } catch (err) {
+    console.error("❌ 좋아요 토글 실패:", err);
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
 
   // 👉 채팅 시작 로직 통일
   const handleChatClick = async () => {
