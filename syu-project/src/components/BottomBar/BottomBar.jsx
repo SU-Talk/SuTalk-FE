@@ -10,7 +10,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
   const [likeCount, setLikeCount] = useState(0);
   const navigate = useNavigate();
   const senderId = localStorage.getItem("senderId");
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const [isProcessing, setIsProcessing] = useState(false);
 
 
   // 👉 좋아요 초기화
@@ -40,25 +40,23 @@ const BottomBar = ({ postId, price, sellerId }) => {
   }, [postId, senderId]);
 
   // 👉 좋아요 토글
-    const handleFavoriteClick = async () => {
-      try {
-        if (isFavorite) {
-          await fetch(`${baseUrl}/likes/${postId}?userId=${senderId}`, {
-            method: "DELETE",
-          });
-          setIsFavorite(false);
-          setLikeCount((prev) => prev - 1);
-        } else {
-          await fetch(`${baseUrl}/likes/${postId}?userId=${senderId}`, {
-            method: "POST",
-          });
-          setIsFavorite(true);
-          setLikeCount((prev) => prev + 1);
-        }
-      } catch (err) {
-        console.error("❌ 좋아요 토글 실패:", err);
+  const handleFavoriteClick = async () => {
+      if (isProcessing) return;
+      setIsProcessing(true);
+    try {
+      if (isFavorite) {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
+        setIsFavorite(false);
+        setLikeCount((prev) => prev - 1);
+      } else {
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
+        setIsFavorite(true);
+        setLikeCount((prev) => prev + 1);
       }
-    };
+    } catch (err) {
+      console.error("❌ 좋아요 토글 실패:", err);
+    }
+  };
 
 
   // 👉 채팅 시작 로직 통일

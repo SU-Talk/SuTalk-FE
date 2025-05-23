@@ -27,34 +27,43 @@ const ChatRoom = () => {
   const isBuyer = senderId && senderId !== chatSellerId;
 
   // ✅ 1. fallback: 채팅방 정보 조회
-  useEffect(() => {
-    const fetchChatRoomDetails = async () => {
-      try {
-        if (!itemId || !chatSellerId || !buyerId) {
-          const res = await axios.get(`/chat-rooms/${chatRoomId}`);
-          setItemId(res.data.itemId);
-          setChatSellerId(res.data.sellerId);
-          setBuyerId(res.data.buyerId);
-        }
-      } catch (err) {
-        console.error("❌ 채팅방 정보 조회 실패:", err);
-      }
-    };
-    fetchChatRoomDetails();
-  }, [chatRoomId, itemId, chatSellerId, buyerId]);
 
-  useEffect(() => {
-    const fetchTransactionId = async () => {
-      if (!itemId || !senderId) return;
-      try {
-        const res = await axios.get(`/transactions/item/${itemId}/user/${senderId}`);
-        setTransactionId(res.data.transactionId);
-      } catch (err) {
-        console.error("❌ 거래 ID 조회 실패:", err.response || err);
-      }
-    };
-    fetchTransactionId();
-  }, [itemId, senderId]);
+useEffect(() => {
+  if (itemId && chatSellerId && buyerId) return;
+
+  const fetchChatRoomDetails = async () => {
+    try {
+      const res = await axios.get(`/api/chat-rooms/${chatRoomId}`);
+      console.log("📦 fallback 채팅방 정보:", res.data);
+      setItemId(res.data.itemId);
+      setChatSellerId(res.data.sellerId);
+      setBuyerId(res.data.buyerId);
+    } catch (err) {
+      console.error("❌ 채팅방 정보 조회 실패:", err);
+    }
+  };
+
+  fetchChatRoomDetails();
+}, [chatRoomId]);
+
+// ✅ 2. itemId와 senderId가 둘 다 있을 때만 거래 정보 요청
+useEffect(() => {
+  if (!itemId || !senderId) return;
+
+  const fetchTransactionId = async () => {
+    try {
+      const res = await axios.get(`/api/transactions/item/${itemId}/user/${senderId}`);
+      setTransactionId(res.data.transactionId);
+      console.log("✅ 거래 ID:", res.data.transactionId);
+    } catch (err) {
+      console.error("❌ 거래 ID 조회 실패:", err.response || err);
+    }
+  };
+
+  fetchTransactionId();
+}, [itemId, senderId]);
+
+
 
   // ✅ 3. 채팅 메시지 조회 + WebSocket 연결
   useEffect(() => {
@@ -74,6 +83,7 @@ const ChatRoom = () => {
       onConnect: () => {
         client.subscribe(`/topic/chat/${chatRoomId}`, (message) => {
           const data = JSON.parse(message.body);
+          console.log("📥 서버에서 받은 메시지:", data); // 🔥 꼭 찍어봐!
           setMessages((prev) => [...prev, data]);
         });
         setStompClient(client);

@@ -9,6 +9,7 @@ const ChatFooter = ({ stompClient, chatRoomId, setMessages }) => {
 
     if (!stompClient || !stompClient.connected) {
       console.warn("⚠️ WebSocket 연결 안됨");
+      console.log("⛔ stompClient:", stompClient);
       return;
     }
 
@@ -18,10 +19,17 @@ const ChatFooter = ({ stompClient, chatRoomId, setMessages }) => {
       content: message,
     };
 
-    stompClient.publish({
-      destination: "/app/chat.send",
-      body: JSON.stringify(newMessage),
-    });
+    console.log("📤 전송 메시지 객체:", newMessage);
+
+    try {
+      stompClient.publish({
+        destination: "/app/chat.send",
+        body: JSON.stringify(newMessage),
+      });
+      console.log("✅ 메시지 전송됨!");
+    } catch (err) {
+      console.error("❌ 메시지 전송 실패:", err);
+    }
 
     setMessage("");
   };
