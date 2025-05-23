@@ -20,6 +20,7 @@
   flex: 1;
   min-width: 0;
   gap: 10px;
+
 }
 
 .back-button {
@@ -30,6 +31,7 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+
 }
 
 .back-icon {
@@ -52,6 +54,7 @@
   align-items: center;
   gap: 10px;
   position: relative;
+  margin-top: -22px;
 }
 
 .menu-icon-button {
@@ -60,13 +63,14 @@
   color: white;
   font-size: 18px;
   cursor: pointer;
+  margin-top: 25px;
 }
 
 /* 드롭다운 메뉴 */
 .chat-menu-dropdown {
   position: absolute;
-  top: 40px;
-  right: 0;
+  top: 50px;               /* 원래 40px보다 더 내려줌 */
+  right: 10px;             /* 오른쪽에서 약간 떨어뜨림 */
   background: white;
   border: 1px solid #ccc;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
@@ -92,19 +96,22 @@
 
 /* 거래 완료 버튼 */
 .complete-button {
-  background-color: white;
-  color: #2670ff;
-  border: 1px solid #2670ff;
+  background-color: white;         /* 배경 흰색 */
+  color: #2670ff;                  /* 글자색: 테마 블루 */
+  border: 2px solid #2670ff;       /* 테두리도 동일 색 */
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .complete-button:hover {
-  background-color: #e8f0ff;
+  background-color: #2670ff;       /* hover 시 배경 파란색 */
+  color: white;                    /* hover 시 글자 흰색 */
 }
+
 
 /* 채팅방 전체 컨테이너 */
 .chat-room {
