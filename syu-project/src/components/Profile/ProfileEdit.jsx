@@ -1,19 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ProfileEdit.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faCamera, faUser } from "@fortawesome/free-solid-svg-icons";
+import axiosInstance from "../../axiosInstance"; // 경로 확인!
 
-const ProfileEdit = ({ nickname, setNickname }) => {
-  const [newNickname, setNewNickname] = useState(nickname); // 초기값 설정
+const ProfileEdit = () => {
+  const [userId, setUserId] = useState(""); // 기존 ID
+  const [newUserId, setNewUserId] = useState(""); // 수정할 ID
 
-  const handleSave = () => {
-    setNickname(newNickname); // 닉네임 저장
-    alert(`닉네임이 "${newNickname}"으로 저장되었습니다.`);
-    window.history.back(); // 이전 페이지로 이동
+  useEffect(() => {
+    const currentId = localStorage.getItem("senderId");
+    setUserId(currentId);
+    setNewUserId(currentId);
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      console.log("PATCH to:", `/users/${userId}`);
+      console.log("Body:", { newUserId });
+
+      await axiosInstance.patch(`/users/${userId}`, {
+        newUserId: newUserId,
+      });
+
+      localStorage.setItem("senderId", newUserId);
+      alert(`ID가 "${newUserId}"로 변경되었습니다.`);
+      window.history.back();
+    } catch (error) {
+      console.error("ID 변경 실패", error);
+      alert("ID 변경 중 오류가 발생했습니다.");
+    }
   };
 
   const handleClose = () => {
-    window.history.back(); // 이전 페이지로 이동
+    window.history.back();
   };
 
   return (
@@ -36,9 +56,9 @@ const ProfileEdit = ({ nickname, setNickname }) => {
         </div>
         <input
           type="text"
-          placeholder="닉네임을 입력하세요."
-          value={newNickname}
-          onChange={(e) => setNewNickname(e.target.value)} // 입력값 업데이트
+          placeholder="새로운 ID를 입력하세요."
+          value={newUserId}
+          onChange={(e) => setNewUserId(e.target.value)}
           className="nickname-input"
         />
       </div>

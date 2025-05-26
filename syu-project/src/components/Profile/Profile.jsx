@@ -6,8 +6,8 @@ import { faHeart, faReceipt, faUser } from "@fortawesome/free-solid-svg-icons";
 import Nav from "../Nav/Nav";
 import SellerReviewList from "../Review/SellerReviewList";
 
-const Profile = ({ nickname }) => {
-  const sellerId = localStorage.getItem("senderId");
+const Profile = () => {
+  const senderId = localStorage.getItem("senderId"); // 로그인된 사용자 ID
 
   return (
     <div className="profile-container">
@@ -19,7 +19,7 @@ const Profile = ({ nickname }) => {
         <div className="profile-avatar">
           <FontAwesomeIcon icon={faUser} className="avatar-icon" />
         </div>
-        <h3 className="profile-name">{nickname}</h3>
+        <h3 className="profile-name">{senderId}</h3> {/* 로그인 ID 출력 */}
         <Link to="/profile/edit">
           <button className="edit-profile-button">프로필 수정</button>
         </Link>
@@ -44,7 +44,7 @@ const Profile = ({ nickname }) => {
 
       {/* 받은 후기 리스트 */}
       <div className="profile-reviews">
-        <SellerReviewList sellerId={sellerId} />
+        <SellerReviewList sellerId={senderId} />
       </div>
 
       <Nav />
