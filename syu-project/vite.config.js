@@ -6,6 +6,7 @@ export default defineConfig({
   define: {
     global: {},
   },
+  publicDir: 'public',
   server: {
     host: 'localhost',
     port: 5173, // 기본값이지만 명시적으로 설정
