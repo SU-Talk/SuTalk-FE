@@ -146,7 +146,7 @@
   margin: 20px 0 12px;
   white-space: pre-wrap;
   word-break: break-all; /* 긴 단어도 자동 줄바꿈 */
-  overflow-wrap: break-word;
+  overflow-wrap: break-word;  
 }
 
 /* 장소 + 날짜 */

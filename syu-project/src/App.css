@@ -13,8 +13,3 @@
   opacity: 0;
   transition: opacity 500ms ease-in;
 }
-
-.span[data-testid="clip-loader"] > div {
-  animation: none !important;
-  transform: none !important;
-}

@@ -17,7 +17,7 @@ const BottomBar = ({ postId, price, sellerId }) => {
       try {
         const [isLikedRes, countRes] = await Promise.all([
           fetch(`/api/likes/${postId}/is-liked?userId=${senderId}`),
-          fetch(`/api/likes/${postId}/count`)
+          fetch(`/api/likes/${postId}/count`),
         ]);
 
         if (isLikedRes.ok) {
@@ -41,11 +41,15 @@ const BottomBar = ({ postId, price, sellerId }) => {
   const handleFavoriteClick = async () => {
     try {
       if (isFavorite) {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "DELETE" });
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+          method: "DELETE",
+        });
         setIsFavorite(false);
         setLikeCount((prev) => prev - 1);
       } else {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, { method: "POST" });
+        await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+          method: "POST",
+        });
         setIsFavorite(true);
         setLikeCount((prev) => prev + 1);
       }
@@ -68,8 +72,8 @@ const BottomBar = ({ postId, price, sellerId }) => {
         body: JSON.stringify({
           buyerId: senderId,
           sellerId,
-          itemId: postId
-        })
+          itemId: postId,
+        }),
       });
 
       if (!transactionRes.ok) throw new Error("거래 생성 실패");
@@ -82,8 +86,8 @@ const BottomBar = ({ postId, price, sellerId }) => {
         body: JSON.stringify({
           itemTransactionId: transactionId,
           buyerId: senderId,
-          sellerId
-        })
+          sellerId,
+        }),
       });
 
       if (!chatRoomRes.ok) throw new Error("채팅방 생성 실패");
