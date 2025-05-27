@@ -141,3 +141,9 @@
 .highlight {
   background-color: yellow;
 }
+
+.no-results{
+  display: flex;
+  justify-content: center;
+  margin-top: 300px;
+}
