@@ -22,12 +22,15 @@ const ChatBody = ({ messages }) => {
   return (
     <div className="chat-body">
       {messages.map((msg, index) => {
-        console.log("📦 [클라] 렌더링할 메시지:", msg);
+        // console.log("📦 [클라] 렌더링할 메시지:", msg);
         return (
           <div
             key={index}
-            className={`message ${msg.senderId === localStorage.getItem("senderId") ? "sent" : "received"}`}
-          >
+            className={`message ${
+              msg.senderId === localStorage.getItem("senderId")
+                ? "sent"
+                : "received"
+            }`}>
             <p>{msg.content || msg.comment}</p>
             <span>{msg.sentAt ? formatTime(msg.sentAt) : "시간 없음"}</span>
           </div>

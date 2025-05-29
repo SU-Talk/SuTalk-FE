@@ -1,12 +1,10 @@
-// components/Profile/SellerProfile.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import SellerReviewList from "../Review/SellerReviewList";
 import "./profile.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
-import { FaBars, FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
+import { useLoading } from "../Loader/LoadingContext"; // 전역 로딩 컨텍스트 import
 
 const SellerProfile = () => {
   const { sellerId } = useParams();
@@ -14,6 +12,7 @@ const SellerProfile = () => {
   const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  const { loading, setLoading } = useLoading();
 
   const reporterId = localStorage.getItem("senderId");
 
@@ -27,39 +26,50 @@ const SellerProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(`/api/users/${sellerId}`);
         setProfile(response.data);
       } catch (error) {
-        console.error("❌ 프로필 조회 실패:", error);
+        // console.error("❌ 프로필 조회 실패:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     const fetchPosts = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`/api/items/by-seller?sellerId=${sellerId}`);
+        const response = await axios.get(
+          `/api/items/by-seller?sellerId=${sellerId}`
+        );
         setPosts(response.data);
       } catch (error) {
-        console.error("❌ 게시글 조회 실패:", error);
+        // console.error("❌ 게시글 조회 실패:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
     fetchPosts();
+    // eslint-disable-next-line
   }, [sellerId]);
 
-  if (!profile) return <p>로딩 중...</p>;
+  if (loading) return null; // 전역 MoonLoader가 뜨므로 별도 로딩 UI 필요 없음
+  if (!profile) return null; // profile이 없으면 아무것도 렌더링하지 않음
 
   return (
     <div className="profile-container">
       {/* ✅ 상단 고정 헤더 */}
       <div className="profile-topbar">
-          <button className="back-button" onClick={handleGoBack}>
-             <FaArrowLeft className="back-icon" />
-          </button>
-        <h2 className="topbar-title">{profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필</h2>
+        <button className="back-button" onClick={handleGoBack}>
+          <FaArrowLeft className="back-icon" />
+        </button>
+        <h2 className="topbar-title">
+          {profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필
+        </h2>
       </div>
-
 
       <div className="profile-info">
         <div className="profile-avatar">👤</div>
@@ -75,8 +85,7 @@ const SellerProfile = () => {
             navigate("/report", {
               state: { reporterId, reportedId: sellerId, itemId: null },
             })
-          }
-        >
+          }>
           🚨 신고하기
         </button>
       </div>

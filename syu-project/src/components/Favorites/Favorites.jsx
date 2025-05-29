@@ -12,18 +12,17 @@ const Favorites = () => {
   const senderId = localStorage.getItem("senderId");
 
   useEffect(() => {
-  const fetchFavorites = async () => {
-    try {
-      const response = await fetch(`/api/likes/my?userId=${senderId}`);
-      const data = await response.json();
-      console.log("🔥 받아온 데이터", data); // 여기서 post.thumbnail이 실제로 있는지 확인
-      setFavoriteItems(data);
-    } catch (error) {
-      console.error("❌ 관심 목록 조회 오류:", error);
-      setError(true);
-    }
-  };
-
+    const fetchFavorites = async () => {
+      try {
+        const response = await fetch(`/api/likes/my?userId=${senderId}`);
+        const data = await response.json();
+        // console.log("🔥 받아온 데이터", data);
+        setFavoriteItems(data);
+      } catch (error) {
+        // console.error("❌ 관심 목록 조회 오류:", error);
+        setError(true);
+      }
+    };
 
     if (senderId) {
       fetchFavorites();
@@ -53,7 +52,10 @@ const Favorites = () => {
       <div className="favorites-list">
         {favoriteItems.length > 0 ? (
           favoriteItems.map((post) => (
-            <Link to={`/post/${post.itemid}`} key={post.itemid} className="favorite-item">
+            <Link
+              to={`/post/${post.itemid}`}
+              key={post.itemid}
+              className="favorite-item">
               <div className="favorite-thumbnail">
                 <img
                   src={
@@ -67,14 +69,20 @@ const Favorites = () => {
               </div>
               <div className="favorite-details">
                 <h3>{post.title}</h3>
-                <p>{post.price != null ? `${post.price.toLocaleString()}원` : "가격 정보 없음"}</p>
+                <p>
+                  {post.price != null
+                    ? `${post.price.toLocaleString()}원`
+                    : "가격 정보 없음"}
+                </p>
                 <div className="favorite-like-count">
-                  <FontAwesomeIcon icon={faHeart} style={{ color: "#f55", marginRight: "4px" }} />
+                  <FontAwesomeIcon
+                    icon={faHeart}
+                    style={{ color: "#f55", marginRight: "4px" }}
+                  />
                   <span>{post.likeCount ?? 0}</span>
                 </div>
               </div>
             </Link>
-
           ))
         ) : (
           <p className="no-favorites">관심 목록이 비어 있습니다.</p>

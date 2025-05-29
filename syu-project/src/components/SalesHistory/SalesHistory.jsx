@@ -66,7 +66,7 @@ const SalesHistory = () => {
       if (!response.ok) throw new Error("상태 변경 실패");
       fetchSalesData(); // 상태 변경 후 데이터 새로고침
     } catch (error) {
-      console.error("상태 변경 실패:", error);
+      // console.error("상태 변경 실패:", error);
     }
   };
 

@@ -37,21 +37,34 @@ const BottomBar = ({ postId, price, sellerId }) => {
     fetchLikeStatus();
   }, [postId, senderId]);
 
-  // 👉 좋아요 토글
   const handleFavoriteClick = async () => {
     try {
+      let res;
       if (isFavorite) {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+        res = await fetch(`/api/likes/${postId}?userId=${senderId}`, {
           method: "DELETE",
         });
-        setIsFavorite(false);
-        setLikeCount((prev) => prev - 1);
       } else {
-        await fetch(`/api/likes/${postId}?userId=${senderId}`, {
+        res = await fetch(`/api/likes/${postId}?userId=${senderId}`, {
           method: "POST",
         });
-        setIsFavorite(true);
-        setLikeCount((prev) => prev + 1);
+      }
+
+      if (!res.ok) throw new Error("좋아요 토글 실패");
+
+      // body가 비어있으면 JSON 파싱하지 않음
+      const text = await res.text();
+      let data = {};
+      if (text) {
+        data = JSON.parse(text);
+      }
+
+      setIsFavorite(!isFavorite);
+
+      if (typeof data.count === "number") {
+        setLikeCount(data.count);
+      } else {
+        setLikeCount((prev) => Math.max(isFavorite ? prev - 1 : prev + 1, 0));
       }
     } catch (err) {
       console.error("❌ 좋아요 토글 실패:", err);

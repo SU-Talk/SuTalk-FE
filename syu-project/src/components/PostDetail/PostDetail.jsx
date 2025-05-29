@@ -3,29 +3,32 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./PostDetail.css";
 import TopBar from "../TopBar/TopBar";
 import BottomBar from "../BottomBar/BottomBar";
+import { useLoading } from "../Loader/LoadingContext"; // 전역 로딩 컨텍스트 import
 
 const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [prevImageIndex, setPrevImageIndex] = useState(0);
+  const { loading, setLoading } = useLoading();
 
   useEffect(() => {
     const fetchPost = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`/api/items/${postId}`);
         if (!response.ok) throw new Error("Failed to fetch post data");
         const data = await response.json();
         setPost(data);
       } catch (error) {
-        console.error("❌ 게시글 데이터 로딩 실패:", error);
+        // console.error("❌ 게시글 데이터 로딩 실패:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchPost();
+    // eslint-disable-next-line
   }, [postId]);
 
   const handleStartChat = async () => {
@@ -38,6 +41,7 @@ const PostDetail = () => {
     }
 
     try {
+      setLoading(true);
       const transactionRes = await fetch(`/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,8 +74,10 @@ const PostDetail = () => {
 
       navigate(`/chat/${chatRoomId}`);
     } catch (error) {
-      console.error("❌ 채팅 시작 실패:", error);
+      // console.error("❌ 채팅 시작 실패:", error);
       alert("채팅을 시작하는 도중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,7 +91,7 @@ const PostDetail = () => {
     setCurrentImageIndex(nextIndex);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return null;
   if (!post) return <p>Post not found</p>;
 
   const formattedDate = new Date(Number(post.regdate)).toLocaleDateString(

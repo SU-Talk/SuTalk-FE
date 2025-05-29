@@ -58,10 +58,10 @@ const ChatList = () => {
               }}
               className="chat-item">
               <div className="chat-info">
-                <h3>
-                  {chat.buyerUsername} & {chat.sellerUsername}
-                </h3>
-                <p>{chat.itemTitle}</p>
+                <h3>{chat.sellerUsername}</h3>
+                <p className="chat-last-message">
+                  {chat.lastMessage || "메시지 없음"}
+                </p>
               </div>
               <span className="chat-time">
                 {new Date(chat.createdAt).toLocaleTimeString([], {

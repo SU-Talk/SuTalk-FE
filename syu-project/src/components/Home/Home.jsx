@@ -35,7 +35,7 @@ const Home = () => {
       const data = await response.json();
       setPosts(data);
     } catch (error) {
-      console.error("❌ 데이터 가져오기 실패:", error);
+      // console.error("❌ 데이터 가져오기 실패:", error);
     }
     setLoading(false);
   };
@@ -153,9 +153,6 @@ const Home = () => {
                     ? `가격: ${post.price.toLocaleString()}원`
                     : "가격 없음"}
                 </p>
-                {/* <p className="post-comment">
-                  {highlightText(post.description || "설명 없음")}
-                </p> */}
               </div>
             </Link>
           );

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -27,17 +27,17 @@ import SellerProfile from "./components/Profile/SellerProfile";
 import UserEnter from "./components/UserEnter/UserEnter";
 import Login from "./components/Login/Login";
 
+import { LoadingProvider } from "./components/Loader/LoadingContext";
+import GlobalLoader from "./components/Loader/GlobalLoader";
+
 const LoadingWrapper = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // ✅ senderId 초기화 후 → 로그인 페이지로 이동
+  React.useEffect(() => {
     localStorage.removeItem("senderId");
-
     const timer = setTimeout(() => {
-      navigate("/login", { replace: true }); // ✅ 수정됨: /enter → /login
+      navigate("/login", { replace: true });
     }, 3000);
-
     return () => clearTimeout(timer);
   }, [navigate]);
 
@@ -60,9 +60,8 @@ const AnimatedRoutes = () => {
         <div ref={nodeRef}>
           <Routes location={location}>
             <Route path="/" element={<LoadingWrapper />} />
-            <Route path="/login" element={<Login />} />{" "}
-            {/* ✅ 로그인 라우트 추가 */}
-            <Route path="/enter" element={<UserEnter />} /> {/* ✅ 회원가입 */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/enter" element={<UserEnter />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/chat/:chatRoomId" element={<ChatRoom />} />
             <Route path="/chatlist" element={<ChatListPage />} />
@@ -122,11 +121,14 @@ class ErrorBoundary extends React.Component {
 
 function App() {
   return (
-    <Router>
-      <ErrorBoundary>
-        <AnimatedRoutes />
-      </ErrorBoundary>
-    </Router>
+    <LoadingProvider>
+      <Router>
+        <GlobalLoader />
+        <ErrorBoundary>
+          <AnimatedRoutes />
+        </ErrorBoundary>
+      </Router>
+    </LoadingProvider>
   );
 }
 

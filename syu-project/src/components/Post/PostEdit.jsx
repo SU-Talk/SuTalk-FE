@@ -95,7 +95,7 @@ const PostEdit = () => {
       }
       navigate(`/post/${response.data.itemid}`);
     } catch (error) {
-      console.error("❌ 저장 중 에러 발생:", error);
+      // console.error("❌ 저장 중 에러 발생:", error);
       alert("에러가 발생했어요. 콘솔을 확인해주세요.");
     }
   };

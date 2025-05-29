@@ -20,16 +20,17 @@
   flex: 1;
   min-width: 0;
   gap: 10px;
+  color: white;
 }
 
-.back-button {
+.chat-back-button {
   background: none;
   border: none;
-  color: white; /* ← 이 부분 추가! */
-  font-size: 10px;
+  font-size: 18px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
+  margin-top: 6px;
+  font-weight: bold;
+  color: #ffffff;
 }
 
 .back-icon {
@@ -43,10 +44,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 30px;
 }
 
-/* 오른쪽 버튼 영역 */
 .chat-header-right {
   display: flex;
   align-items: center;
@@ -58,8 +57,9 @@
   background: none;
   border: none;
   color: white;
-  font-size: 18px;
+  font-size: 22px;
   cursor: pointer;
+  padding: 6px 10px;
 }
 
 /* 드롭다운 메뉴 */
@@ -113,12 +113,22 @@
   height: 100vh;
 }
 
+.chat-room .chat-room-header h2 {
+  width: 100%;
+  flex-grow: 1;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2670ff;
+  margin-top: 18px;
+}
+
 /* 채팅 메시지 영역 */
 .chat-body {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
-  margin-top: 50px; /* header 높이 */
+  margin-top: 50px;
   margin-bottom: 70px; /* footer 높이 */
 }
 

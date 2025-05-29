@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Search.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faClock, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faClock,
+  faSearch,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Search = () => {
   const [history, setHistory] = useState([]);
@@ -35,12 +39,14 @@ const Search = () => {
     const fetchSuggestions = async () => {
       if (!searchInput.trim()) return;
       try {
-        const response = await fetch(`/api/items/suggest?keyword=${searchInput}`);
+        const response = await fetch(
+          `/api/items/suggest?keyword=${searchInput}`
+        );
         if (!response.ok) throw new Error("추천어 요청 실패");
         const data = await response.json();
         setSuggestions(data);
       } catch (error) {
-        console.error("추천어 오류:", error);
+        // console.error("추천어 오류:", error);
       }
     };
     const delay = setTimeout(fetchSuggestions, 300);
@@ -58,7 +64,7 @@ const Search = () => {
         body: JSON.stringify({ keyword: query, userId }),
       });
     } catch (error) {
-      console.error("검색어 저장 실패:", error);
+      // console.error("검색어 저장 실패:", error);
     }
 
     navigate(`/home?q=${encodeURIComponent(query)}`);
@@ -68,12 +74,15 @@ const Search = () => {
 
   const handleDelete = async (keyword) => {
     try {
-      await fetch(`/api/search-history/${encodeURIComponent(keyword)}?userId=${userId}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `/api/search-history/${encodeURIComponent(keyword)}?userId=${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
       setHistory((prev) => prev.filter((item) => item.query !== keyword));
     } catch (error) {
-      console.error("삭제 실패:", error);
+      // console.error("삭제 실패:", error);
     }
   };
 
@@ -82,7 +91,7 @@ const Search = () => {
       await fetch(`/api/search-history?userId=${userId}`, { method: "DELETE" });
       setHistory([]);
     } catch (error) {
-      console.error("전체 삭제 실패:", error);
+      // console.error("전체 삭제 실패:", error);
     }
   };
 
@@ -91,7 +100,10 @@ const Search = () => {
       <div className="header">
         <Link to="/home">
           <button className="search-back-button">
-            <FontAwesomeIcon icon={faChevronLeft} className="search-back-image" />
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              className="search-back-image"
+            />
           </button>
         </Link>
         <div className="search-bar-wrapper">
@@ -116,9 +128,7 @@ const Search = () => {
             <li
               key={item.itemId} // ✅ 꼭 넣기!
               className="suggestion-item with-image"
-              onClick={() => navigate(`/post/${item.itemId}`)}
-            >
-
+              onClick={() => navigate(`/post/${item.itemId}`)}>
               {item.thumbnail ? (
                 <img
                   src={`http://localhost:8080${item.thumbnail}`} // ✅ 로컬 서버 주소 포함
@@ -148,14 +158,18 @@ const Search = () => {
           {history.length > 0 ? (
             history.map((item) => (
               <li key={item.id} className="history-item">
-                <FontAwesomeIcon icon={faClock} className="search-marker-image" />
+                <FontAwesomeIcon
+                  icon={faClock}
+                  className="search-marker-image"
+                />
                 <span
                   className="history-query"
-                  onClick={() => handleSearch(item.query)}
-                >
+                  onClick={() => handleSearch(item.query)}>
                   {item.query}
                 </span>
-                <button className="Sdelete-button" onClick={() => handleDelete(item.query)}>
+                <button
+                  className="Sdelete-button"
+                  onClick={() => handleDelete(item.query)}>
                   ×
                 </button>
               </li>
