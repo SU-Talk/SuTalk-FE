@@ -26,17 +26,21 @@
 .back-button {
   background: none;
   border: none;
-  color: white; /* ← 이 부분 추가! */
+  color: white;
   font-size: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
 
+  margin-top: -20px;
+
 }
+
 
 .back-icon {
   color: white;
   font-size: 15px;
+  margin-top: -6px;
 }
 
 .chat-header-title {
