@@ -111,28 +111,30 @@ const Search = () => {
 
       {/* ✨ 이미지 포함 추천 리스트 */}
       {suggestions.length > 0 && (
-        <ul className="suggestion-list">
-          {suggestions.map((item) => (
-            <li
-              key={item.itemId} // ✅ 꼭 넣기!
-              className="suggestion-item with-image"
-              onClick={() => navigate(`/post/${item.itemId}`)}
-            >
+  <ul className="suggestion-list">
+    {suggestions.map((item) => (
+      <li
+        key={item.itemId}
+        className="suggestion-item with-image"
+        onClick={() => navigate(`/post/${item.itemId}`)}
+      >
+        <img
+          src={
+            item.thumbnail
+              ? (item.thumbnail.startsWith("/uploads")
+                  ? item.thumbnail
+                  : `/uploads/thumbnails/${item.thumbnail}`)
+              : "/assets/default-image.png"
+          }
+          alt="썸네일"
+          className="suggestion-thumb"
+        />
+        <span className="suggestion-title">{item.title}</span>
+      </li>
+    ))}
+  </ul>
+)}
 
-              {item.thumbnail ? (
-                <img
-                  src={`http://localhost:8080${item.thumbnail}`} // ✅ 로컬 서버 주소 포함
-                  alt="썸네일"
-                  className="suggestion-thumb"
-                />
-              ) : (
-                <div className="suggestion-thumb placeholder" />
-              )}
-              <span className="suggestion-title">{item.title}</span>
-            </li>
-          ))}
-        </ul>
-      )}
 
       {/* 검색 기록 */}
       <div className="history-container">

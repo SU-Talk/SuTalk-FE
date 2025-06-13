@@ -165,7 +165,7 @@ const PostDetail = () => {
                 className="seller-name"
                 onClick={() => navigate(`/profile/seller/${post.sellerId}`)}
               >
-                {post.sellerName || `test-user-${post.sellerId?.slice(-3)}`}
+                {post.sellerName || `${post.sellerId?.slice(-3)}`}
               </span>
             </div>
 

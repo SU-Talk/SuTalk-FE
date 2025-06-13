@@ -62,7 +62,7 @@ const Review = () => {
   };
 
   const sellerDisplayName =
-    sellerProfile?.name || `test-user-${sellerId?.slice(-3)}`;
+    sellerProfile?.userid || `test-user-${sellerId?.slice(-3)}`;
 
   return (
     <div className="review-container">

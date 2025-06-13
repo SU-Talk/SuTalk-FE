@@ -72,13 +72,13 @@ const SellerProfile = () => {
           <FaArrowLeft className="back-icon" />
         </button>
         <h2 className="topbar-title">
-          {profile.name || `test-user-${sellerId.slice(-3)}`}님의 프로필
+          {profile.userid || sellerId}님의 프로필
         </h2>
       </div>
 
       <div className="profile-info">
         <div className="profile-avatar">👤</div>
-        <h3>{profile.name || `test-user-${sellerId.slice(-3)}`}</h3>
+        <h3>{profile.userid || sellerId}</h3>
         <p>
           후기 평균 ⭐ {profile.averageRating?.toFixed(1) ?? "0.0"} / 후기{" "}
           {profile.reviewCount ?? 0}개

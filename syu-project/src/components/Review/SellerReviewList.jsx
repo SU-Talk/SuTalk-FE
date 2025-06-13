@@ -7,10 +7,17 @@ const SellerReviewList = ({ sellerId }) => {
 
   useEffect(() => {
     if (!sellerId) return;
-    axios
-      .get(`/api/reviews/seller/${sellerId}`)
-      .then((res) => setReviews(res.data))
-      .catch((err) => console.error("❌ 판매자 리뷰 조회 실패:", err));
+
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/api/reviews/seller/${sellerId}`);
+        setReviews(res.data);
+      } catch (err) {
+        console.error("❌ 리뷰 조회 실패:", err);
+      }
+    };
+
+    fetchData();
   }, [sellerId]);
 
   return (
@@ -23,13 +30,13 @@ const SellerReviewList = ({ sellerId }) => {
       ) : (
         reviews.map((review, idx) => (
           <div key={idx} className="review-box">
-            <div className="review-header">
-              <span>👤 {review.reviewerName}</span>
+           <div className="review-header">
+              <span>👤 {review.reviewerNickname}</span> {/* ✅ 여기! */}
               <span className="review-rating">⭐ {review.rating}</span>
             </div>
+
             <p className="review-item">📦 {review.itemTitle}</p>
             <p className="review-comment">💬 {review.comment}</p>
-            
             <span className="review-date">
               {new Date(review.createdAt).toLocaleDateString()}
             </span>
